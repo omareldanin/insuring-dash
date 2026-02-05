@@ -139,6 +139,11 @@ export default function Companies() {
                       <td className="p-3 border-b border-gray-200">
                         <div className="flex gap-2">
                           <button
+                            className="bg-gradient-to-r from-[#1c46a2] to-[#31e5b7] text-white px-4 py-2 rounded-lg hover:bg-gray-800"
+                            onClick={() => navigation("/companies/filters")}>
+                            الفلاتر
+                          </button>
+                          <button
                             className="text-red-500 hover:text-red-700"
                             onClick={() => {
                               setIsDialogOpen(true);
