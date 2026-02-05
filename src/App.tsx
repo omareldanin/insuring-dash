@@ -7,8 +7,17 @@ import AppLayout from "./layouts/AppLayout";
 import "ldrs/react/DotSpinner.css";
 import "leaflet/dist/leaflet.css";
 import Users from "./pages/Users";
-import AddUser from "./pages/AddUser";
-import EditUser from "./pages/EditUser";
+import AddUser from "./pages/Users/AddUser";
+import EditUser from "./pages/Users/EditUser";
+import Plans from "./pages/Plans";
+import Cars from "./pages/Cars";
+import EditPlan from "./pages/Plans/EditPlan";
+import CreatePlan from "./pages/Plans/CreatePlan";
+import CreateCar from "./pages/Cars/CreateCar";
+import EditCar from "./pages/Cars/EditCar";
+import Companies from "./pages/Companies";
+import CreateCompany from "./pages/Companies/AddCompany";
+import EditCompany from "./pages/Companies/EditCompany";
 
 function App() {
   return (
@@ -33,6 +42,30 @@ function App() {
             }
           />
           <Route
+            path="/plans"
+            element={
+              <AppLayout>
+                <Plans />
+              </AppLayout>
+            }
+          />
+          <Route
+            path="/plans/add"
+            element={
+              <AppLayout>
+                <CreatePlan />
+              </AppLayout>
+            }
+          />
+          <Route
+            path="/plans/edit/:id"
+            element={
+              <AppLayout>
+                <EditPlan />
+              </AppLayout>
+            }
+          />
+          <Route
             path="/users/add"
             element={
               <AppLayout>
@@ -45,6 +78,54 @@ function App() {
             element={
               <AppLayout>
                 <EditUser />
+              </AppLayout>
+            }
+          />
+          <Route
+            path="/cars"
+            element={
+              <AppLayout>
+                <Cars />
+              </AppLayout>
+            }
+          />
+          <Route
+            path="/cars/add"
+            element={
+              <AppLayout>
+                <CreateCar />
+              </AppLayout>
+            }
+          />
+          <Route
+            path="/cars/edit/:id"
+            element={
+              <AppLayout>
+                <EditCar />
+              </AppLayout>
+            }
+          />
+          <Route
+            path="/companies"
+            element={
+              <AppLayout>
+                <Companies />
+              </AppLayout>
+            }
+          />
+          <Route
+            path="/companies/add"
+            element={
+              <AppLayout>
+                <CreateCompany />
+              </AppLayout>
+            }
+          />
+          <Route
+            path="/companies/edit/:id"
+            element={
+              <AppLayout>
+                <EditCompany />
               </AppLayout>
             }
           />

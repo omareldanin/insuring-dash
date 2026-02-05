@@ -1,5 +1,5 @@
-import MonthlyOrdersChart from "../components/ChartComponent";
-import ProductOrdersChart from "../components/ProductOrdersChart";
+import MonthlyOrdersChart from "../../components/ChartComponent";
+import ProductOrdersChart from "../../components/ProductOrdersChart";
 import { Wallet, Users, Store, Building } from "lucide-react";
 
 const mockData = {

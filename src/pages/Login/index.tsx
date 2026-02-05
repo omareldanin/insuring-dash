@@ -1,15 +1,16 @@
 import { useState } from "react";
 import { User, Lock } from "lucide-react"; // icons
-import { signInService, type SignInRequest } from "../services/auth";
+import { signInService, type SignInRequest } from "../../services/auth";
 import { useMutation } from "@tanstack/react-query";
 import toast from "react-hot-toast";
-import { queryClient } from "../main";
-import { useAuth } from "../store/authStore";
+import { queryClient } from "../../main";
+import { useAuth } from "../../store/authStore";
 import { useNavigate } from "react-router-dom";
 import type { AxiosError } from "axios";
 import { DotSpinner } from "ldrs/react";
-import loginbk from "../assets/login.svg";
-import loginLogo from "../assets/loginLogo.png";
+import loginbk from "../../assets/login.svg";
+import loginLogo from "../../assets/loginLogo.png";
+
 const Login = () => {
   const { setAuth } = useAuth();
   const navigate = useNavigate();

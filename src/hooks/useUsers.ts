@@ -13,7 +13,6 @@ export const useUsers = (params: GetUsersParams) => {
     queryKey: ["users", params],
     queryFn: () => getUsers(params),
     refetchOnWindowFocus: false,
-    refetchInterval: 10000,
   });
 };
 

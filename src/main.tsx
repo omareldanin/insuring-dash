@@ -3,6 +3,7 @@ import "./index.css";
 import App from "./App.tsx";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "react-hot-toast";
+import { MantineProvider } from "@mantine/core";
 
 export const queryClient = new QueryClient({
   defaultOptions: {
@@ -14,7 +15,9 @@ export const queryClient = new QueryClient({
 
 createRoot(document.getElementById("root")!).render(
   <QueryClientProvider client={queryClient}>
-    <App />
+    <MantineProvider>
+      <App />
+    </MantineProvider>
     <Toaster position="top-center" />
   </QueryClientProvider>,
 );

@@ -1,5 +1,5 @@
 import { NavLink } from "react-router-dom";
-import { Home, X, Users, Building } from "lucide-react";
+import { Home, X, Users, Building, Layers, Car } from "lucide-react";
 import logo from "../assets/logo-l.png";
 interface SidebarProps {
   isOpen: boolean;
@@ -51,6 +51,18 @@ const Sidebar = ({ isOpen, onClose }: SidebarProps) => {
               to: "/companies",
               icon: <Building size={20} />,
               label: "الشركات",
+              roles: ["ADMIN"],
+            },
+            {
+              to: "/plans",
+              icon: <Layers size={20} />,
+              label: "باقات التأمين",
+              roles: ["ADMIN"],
+            },
+            {
+              to: "/cars",
+              icon: <Car size={20} />,
+              label: "السيارات",
               roles: ["ADMIN"],
             },
           ]
