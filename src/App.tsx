@@ -161,7 +161,7 @@ function App() {
             path="/companies/edit/:id"
             element={
               <AppLayout>
-                <CarFilters />
+                <EditCompany />
               </AppLayout>
             }
           />
