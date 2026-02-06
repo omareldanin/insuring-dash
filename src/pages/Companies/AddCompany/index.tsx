@@ -14,6 +14,7 @@ export default function CreateCompany() {
   const { data: plans } = usePlans();
 
   const [name, setName] = useState("");
+  const [type, setType] = useState("RANGE");
   const [email, setEmail] = useState("");
   const [companyType, setCompanyType] = useState<string | undefined>(undefined);
 
@@ -62,6 +63,7 @@ export default function CreateCompany() {
       email,
       companyType,
       insuranceTypes,
+      ruleType: type,
       companyPlans: companyPlans.map((p) => ({
         planId: p.planId,
         features: p.features,
@@ -127,6 +129,23 @@ export default function CreateCompany() {
         />
       </div>
 
+      {insuranceTypes.includes("CAR") ? (
+        <div className="mt-4">
+          <Autocomplete
+            options={[
+              { label: "مجموعات", value: "GROUP" },
+              { label: "مبالغ", value: "RANGE" },
+            ]}
+            isOptionEqualToValue={(option, value) =>
+              option.value === value.value
+            }
+            onChange={(_, value) => setType(value?.value || "")}
+            renderInput={(params) => (
+              <TextField {...params} label="طريقة اضافة السيارات" />
+            )}
+          />
+        </div>
+      ) : null}
       {/* ---------- Company Plans ---------- */}
       <div className="mt-6">
         <h2 className="font-semibold mb-3">باقات الشركة</h2>

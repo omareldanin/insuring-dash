@@ -133,16 +133,25 @@ export default function Companies() {
                           : "تكافلي"}
                       </td>
                       <td className="p-3 border-b border-gray-200">
-                        {company.insuranceTypes.toLocaleString()}
+                        {company.insuranceTypes.map((type) => (
+                          <button
+                            className="bg-gray-800 text-white px-4 py-2 rounded-lg hover:bg-gray-800 ml-2"
+                            onClick={() =>
+                              navigation(
+                                `/companies/${type}/filters${type === "CAR" ? "/" + company.ruleType : ""}/${company.id}`,
+                              )
+                            }>
+                            {type === "CAR"
+                              ? "سيارات"
+                              : type === "LIFE"
+                                ? "حياه"
+                                : "صحي"}
+                          </button>
+                        ))}
                       </td>
 
                       <td className="p-3 border-b border-gray-200">
                         <div className="flex gap-2">
-                          <button
-                            className="bg-gray-800 text-white px-4 py-2 rounded-lg hover:bg-gray-800"
-                            onClick={() => navigation("/companies/filters")}>
-                            الفلاتر
-                          </button>
                           <button
                             className="text-red-500 hover:text-red-700"
                             onClick={() => {

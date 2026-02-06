@@ -18,6 +18,10 @@ import EditCar from "./pages/Cars/EditCar";
 import Companies from "./pages/Companies";
 import CreateCompany from "./pages/Companies/AddCompany";
 import EditCompany from "./pages/Companies/EditCompany";
+import Filters from "./pages/Companies/HealthFilters";
+import LifeFilters from "./pages/Companies/LifeFilters";
+import CarFilters from "./pages/Companies/CarFilters";
+import CarFiltersGroups from "./pages/Companies/CarFiltersGroups";
 
 function App() {
   return (
@@ -122,10 +126,42 @@ function App() {
             }
           />
           <Route
+            path="/companies/HEALTH/filters/:id"
+            element={
+              <AppLayout>
+                <Filters />
+              </AppLayout>
+            }
+          />
+          <Route
+            path="/companies/LIFE/filters/:id"
+            element={
+              <AppLayout>
+                <LifeFilters />
+              </AppLayout>
+            }
+          />
+          <Route
+            path="/companies/CAR/filters/GROUP/:id"
+            element={
+              <AppLayout>
+                <CarFiltersGroups />
+              </AppLayout>
+            }
+          />
+          <Route
+            path="/companies/CAR/filters/RANGE/:id"
+            element={
+              <AppLayout>
+                <CarFilters />
+              </AppLayout>
+            }
+          />
+          <Route
             path="/companies/edit/:id"
             element={
               <AppLayout>
-                <EditCompany />
+                <CarFilters />
               </AppLayout>
             }
           />

@@ -67,7 +67,7 @@ export const getModels = async (
   return res.data;
 };
 
-export const getYears = (
+export const getYears = async (
   modelId: number,
 ): Promise<
   {
@@ -75,7 +75,8 @@ export const getYears = (
     name: string;
   }[]
 > => {
-  return api.get("/cars/years/" + modelId);
+  const res = await api.get("/cars/years/" + modelId);
+  return res.data;
 };
 
 export const deleteCar = async (id: number | undefined) => {

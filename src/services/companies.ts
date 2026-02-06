@@ -34,8 +34,9 @@ export interface Company {
   createdAt: Date;
   name: string;
   email: string;
+  ruleType: string;
   companyType: "SOLIDARITY" | "COMMERCIAL";
-  insuranceTypes: "CAR" | "HEALTH" | "LIFE"[];
+  insuranceTypes: string[];
 }
 
 export const getCompanies = async (
