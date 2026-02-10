@@ -10,6 +10,14 @@ import { queryClient } from "../../../main";
 import type { APIError } from "../../../api/api";
 import { usePlan } from "../../../hooks/usePlans";
 import Loading from "../../../components/loading";
+
+interface Errors {
+  nameAr?: string;
+  nameEn?: string;
+  hintAr?: string;
+  hintEn?: string;
+}
+
 export default function EditPlan() {
   const navigate = useNavigate();
   const { id } = useParams();
@@ -17,26 +25,54 @@ export default function EditPlan() {
 
   const { data, isLoading } = usePlan(planId);
 
-  const [name, setName] = useState("");
-  const [hint, setHint] = useState("");
+  // ===== Bilingual fields =====
+  const [nameAr, setNameAr] = useState("");
+  const [nameEn, setNameEn] = useState("");
+  const [hintAr, setHintAr] = useState("");
+  const [hintEn, setHintEn] = useState("");
+
   const [recommend, setRecommend] = useState(false);
   const [insuranceType, setInsuranceType] = useState<InsuranceType>("HEALTH");
-  const [description, setDescription] = useState<string[]>([]);
-  const [featureInput, setFeatureInput] = useState("");
 
-  // 🔁 fill form when data loaded
+  const [description, setDescription] = useState<{
+    ar: string[];
+    en: string[];
+  }>({ ar: [], en: [] });
+
+  const [featureAr, setFeatureAr] = useState("");
+  const [featureEn, setFeatureEn] = useState("");
+
+  const [errors, setErrors] = useState<Errors>({});
+
+  // ===== Prefill =====
   useEffect(() => {
     if (!data?.data) return;
 
     const plan = data.data;
-    console.log(plan);
 
-    setName(plan.name ?? "");
-    setHint(plan.hint ?? "");
+    setNameEn(plan.name ?? "");
+    setNameAr(plan.arName ?? "");
+    setHintEn(plan.hint ?? "");
+    setHintAr(plan.arHint ?? "");
     setRecommend(!!plan.recommend);
     setInsuranceType(plan.insuranceType ?? "HEALTH");
-    setDescription(Array.isArray(plan.description) ? plan.description : []);
+
+    setDescription({
+      en: Array.isArray(plan.description) ? plan.description : [],
+      ar: Array.isArray(plan.arDescription) ? plan.arDescription : [],
+    });
   }, [data?.data]);
+
+  // ===== Validation =====
+  const validate = () => {
+    const newErrors: Errors = {};
+
+    if (!nameAr.trim()) newErrors.nameAr = "اسم الباقة مطلوب";
+    if (!nameEn.trim()) newErrors.nameEn = "Plan name is required";
+
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
 
   const { mutate, isPending } = useMutation({
     mutationFn: (payload: any) => updatePlan(planId, payload),
@@ -51,23 +87,41 @@ export default function EditPlan() {
     },
   });
 
+  // ===== Features =====
   const addFeature = () => {
-    if (!featureInput.trim()) return;
-    setDescription((prev) => [...prev, featureInput.trim()]);
-    setFeatureInput("");
+    if (!featureAr.trim() || !featureEn.trim()) {
+      toast.error("أدخل الميزة بالعربي والإنجليزي");
+      return;
+    }
+
+    setDescription((prev) => ({
+      ar: [...prev.ar, featureAr.trim()],
+      en: [...prev.en, featureEn.trim()],
+    }));
+
+    setFeatureAr("");
+    setFeatureEn("");
   };
 
   const removeFeature = (index: number) => {
-    setDescription((prev) => prev.filter((_, i) => i !== index));
+    setDescription((prev) => ({
+      ar: prev.ar.filter((_, i) => i !== index),
+      en: prev.en.filter((_, i) => i !== index),
+    }));
   };
 
   const submitHandler = () => {
+    if (!validate()) return;
+
     mutate({
-      name,
-      hint,
+      name: nameEn,
+      arName: nameAr,
+      hint: hintEn,
+      arHint: hintAr,
       recommend,
       insuranceType,
-      description: description.length ? description : undefined,
+      description: description.en,
+      arDescription: description.ar,
     });
   };
 
@@ -77,86 +131,118 @@ export default function EditPlan() {
     <div className="bg-white shadow rounded-2xl p-6 max-w-3xl mx-auto">
       <h1 className="text-xl font-bold mb-4 text-[#121E2C]">تعديل الباقة</h1>
 
-      {/* Name */}
+      {/* ===== Name ===== */}
       <div className="mb-4">
-        <label className="block mb-1 text-[#121E2C]">اسم الباقة</label>
+        <label className="block mb-1 text-[#121E2C]">اسم الباقة (AR)</label>
         <input
-          className="w-full px-4 py-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-[#D9C8AA] bg-[#F9FAFB] text-gray-900"
-          value={name}
-          onChange={(e) => setName(e.target.value)}
+          value={nameAr}
+          onChange={(e) => setNameAr(e.target.value)}
+          className="w-full border p-3 rounded-lg"
         />
+        {errors.nameAr && (
+          <p className="text-red-500 text-sm">{errors.nameAr}</p>
+        )}
       </div>
 
-      {/* Hint */}
       <div className="mb-4">
-        <label className="block mb-1 text-[#121E2C]">وصف مختصر</label>
+        <label className="block mb-1 text-[#121E2C]">اسم الباقة (EN)</label>
         <input
-          className="w-full px-4 py-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-[#D9C8AA] bg-[#F9FAFB] text-gray-900"
-          value={hint}
-          onChange={(e) => setHint(e.target.value)}
+          value={nameEn}
+          onChange={(e) => setNameEn(e.target.value)}
+          className="w-full border p-3 rounded-lg"
         />
+        {errors.nameEn && (
+          <p className="text-red-500 text-sm">{errors.nameEn}</p>
+        )}
       </div>
 
-      {/* Insurance Type */}
+      {/* ===== Hint ===== */}
+      <div className="mb-4">
+        <label className="block mb-1 text-[#121E2C]">وصف مختصر (AR)</label>
+        <input
+          value={hintAr}
+          onChange={(e) => setHintAr(e.target.value)}
+          className="w-full border p-3 rounded-lg"
+        />
+        {errors.hintAr && (
+          <p className="text-red-500 text-sm">{errors.hintAr}</p>
+        )}
+      </div>
+
+      <div className="mb-4">
+        <label className="block mb-1 text-[#121E2C]">وصف مختصر (EN)</label>
+        <input
+          value={hintEn}
+          onChange={(e) => setHintEn(e.target.value)}
+          className="w-full border p-3 rounded-lg"
+        />
+        {errors.hintEn && (
+          <p className="text-red-500 text-sm">{errors.hintEn}</p>
+        )}
+      </div>
+
+      {/* ===== Insurance Type ===== */}
       <div className="mb-4">
         <label className="block mb-1 text-[#121E2C]">نوع التأمين</label>
         <select
-          className="w-full px-4 py-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-[#D9C8AA] bg-[#F9FAFB] text-gray-900"
           value={insuranceType}
-          onChange={(e) => setInsuranceType(e.target.value as InsuranceType)}>
-          <option value={"HEALTH"}>صحي</option>
-          <option value={"LIFE"}>حياة</option>
-          <option value={"CAR"}>سيارات</option>
+          onChange={(e) => setInsuranceType(e.target.value as InsuranceType)}
+          className="w-full px-4 py-3 border p-2 rounded-lg text-[#121E2C] rounded-lg">
+          <option value="HEALTH">Health</option>
+          <option value="LIFE">Life</option>
+          <option value="CAR">Car</option>
         </select>
       </div>
 
-      {/* Recommend */}
-      <div className="mb-4 flex items-center justify-start gap-2">
-        <label className="block mb-1 text-[#121E2C]">
-          موصي بها (recommend)
-        </label>
+      {/* ===== Recommend ===== */}
+      <div className="mb-4 flex items-center gap-2">
+        <label className="text-[#121E2C]">موصي بها</label>
         <input
           type="checkbox"
           checked={recommend}
           onChange={(e) => setRecommend(e.target.checked)}
-          className="
-    w-6 h-6
-    accent-[#1c46a2]
-    border-2 border-[#1c46a2]
-    rounded-md
-    cursor-pointer
-  "
+          className="w-6 h-6 "
         />
       </div>
 
-      {/* Description */}
+      {/* ===== Features ===== */}
       <div className="mb-6">
-        <label className="block mb-2 text-right">مميزات الباقة</label>
+        <label className="block mb-2 text-[#121E2C]">المميزات (AR / EN)</label>
 
-        <div className="flex gap-2 mb-3">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-2 mb-3">
           <input
-            className="flex-1 border rounded-lg p-2 text-right"
-            value={featureInput}
-            onChange={(e) => setFeatureInput(e.target.value)}
-            placeholder="أدخل ميزة جديدة"
+            placeholder="الميزة بالعربي"
+            value={featureAr}
+            onChange={(e) => setFeatureAr(e.target.value)}
+            className="border p-2 rounded-lg"
           />
-          <button
-            type="button"
-            className="bg-blue-600 text-white px-4 rounded-lg"
-            onClick={addFeature}>
-            إضافة
-          </button>
+          <input
+            placeholder="الميزه بالانجليزي"
+            value={featureEn}
+            onChange={(e) => setFeatureEn(e.target.value)}
+            className="border p-2 rounded-lg"
+          />
         </div>
 
-        <ul className="space-y-2 text-right">
-          {description.map((item, index) => (
+        <button
+          type="button"
+          onClick={addFeature}
+          className="mb-3 bg-blue-600 text-white px-4 py-2 rounded-lg">
+          إضافة ميزه
+        </button>
+
+        <ul className="space-y-2">
+          {description.ar.map((_, index) => (
             <li
               key={index}
-              className="flex justify-between items-center border p-2 border-gray-200 rounded-lg">
-              <span className="text-[#121E2C]">{item}</span>
+              className="border p-2 rounded-lg flex justify-between">
+              <div>
+                <p className="text-lg text-gray-500">{description.ar[index]}</p>
+                <p className="text-lg text-gray-500">{description.en[index]}</p>
+              </div>
               <button
-                className="text-red-500"
-                onClick={() => removeFeature(index)}>
+                onClick={() => removeFeature(index)}
+                className="text-red-500">
                 حذف
               </button>
             </li>
@@ -164,18 +250,19 @@ export default function EditPlan() {
         </ul>
       </div>
 
-      {/* Actions */}
+      {/* ===== Actions ===== */}
       <div className="flex justify-end gap-3">
         <button
-          className="px-4 py-2 rounded-lg border"
-          onClick={() => navigate("/plans")}>
+          onClick={() => navigate("/plans")}
+          className="px-4 py-2 border rounded-lg bg-gray-400">
           إلغاء
         </button>
+
         <button
-          className="px-6 py-2 rounded-lg bg-gradient-to-r from-[#1c46a2] to-[#31e5b7] text-white"
           disabled={isPending}
-          onClick={submitHandler}>
-          {isPending ? "جاري الحفظ..." : "حفظ التعديلات"}
+          onClick={submitHandler}
+          className="px-6 py-2 rounded-lg bg-gradient-to-r from-[#1c46a2] to-[#31e5b7] text-white">
+          {isPending ? "جاري الحفظ...." : "حفظ"}
         </button>
       </div>
     </div>

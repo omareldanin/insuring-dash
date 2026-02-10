@@ -33,8 +33,13 @@ textarea:focus {
   resize: none;
 }
 input {
-  color: gray;
+  color: rgb(0, 0, 0);
+  transition: 300;
 }
+input:focus {
+  border-color: #31e5b7;
+}
+
 button {
   border-radius: 8px;
   /* border: 1px solid transparent; */

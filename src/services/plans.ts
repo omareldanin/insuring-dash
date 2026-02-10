@@ -31,10 +31,13 @@ export const deletePlan = async (id: number | undefined) => {
 
 export const createPlan = (data: {
   name: string;
+  arName: string;
   hint: string;
+  arHint: string;
   recommend: boolean;
   insuranceType: string;
   description?: string[];
+  arDescription?: string[];
 }) => {
   return api.post("/insurance-plans/create", data);
 };
@@ -47,10 +50,13 @@ export const updatePlan = (
   id: number,
   data: {
     name: string;
+    arName: string;
     hint: string;
+    arHint: string;
     recommend: boolean;
     insuranceType: string;
     description?: string[];
+    arDescription?: string[];
   },
 ) => {
   return api.patch(`/insurance-plans/${id}`, data);

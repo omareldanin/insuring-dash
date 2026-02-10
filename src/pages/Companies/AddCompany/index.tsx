@@ -9,25 +9,36 @@ import toast from "react-hot-toast";
 import { createCompany } from "../../../services/companies";
 import type { AxiosError } from "axios";
 import type { APIError } from "../../../api/api";
+import { useNavigate } from "react-router-dom";
 
 export default function CreateCompany() {
   const { data: plans } = usePlans();
+  const navigate = useNavigate();
 
   const [name, setName] = useState("");
-  const [type, setType] = useState("RANGE");
+  const [arName, setArName] = useState("");
   const [email, setEmail] = useState("");
   const [companyType, setCompanyType] = useState<string | undefined>(undefined);
 
   const [insuranceTypes, setInsuranceTypes] = useState<string[]>([]);
 
   const [companyPlans, setCompanyPlans] = useState<
-    { planId: number; features: string[]; featureInput?: string }[]
+    {
+      planId: number;
+      features: string[];
+      arFeatures: string[];
+      featureInput?: string;
+      arfeatureInput?: string;
+    }[]
   >([]);
 
   // ---------------- Mutation ----------------
   const { mutate, isPending } = useMutation({
     mutationFn: createCompany,
-    onSuccess: () => toast.success("تم إضافة الشركة"),
+    onSuccess: () => {
+      toast.success("تم إضافة الشركة");
+      navigate("/companies");
+    },
     onError: (error: AxiosError<APIError>) => {
       toast.error(error.response?.data.message || "حدث خطأ ما", {
         duration: 4000,
@@ -37,7 +48,10 @@ export default function CreateCompany() {
 
   // ---------------- Plan handlers ----------------
   const addPlan = () => {
-    setCompanyPlans((prev) => [...prev, { planId: 0, features: [] }]);
+    setCompanyPlans((prev) => [
+      ...prev,
+      { planId: 0, features: [], arFeatures: [] },
+    ]);
   };
 
   const removePlan = (index: number) => {
@@ -47,11 +61,14 @@ export default function CreateCompany() {
   const addFeature = (index: number) => {
     const plansCopy = [...companyPlans];
     const feature = plansCopy[index].featureInput?.trim();
+    const arfeature = plansCopy[index].arfeatureInput?.trim();
 
-    if (!feature) return;
+    if (!feature || !arfeature) return;
 
     plansCopy[index].features.push(feature);
+    plansCopy[index].arFeatures.push(arfeature);
     plansCopy[index].featureInput = "";
+    plansCopy[index].arfeatureInput = "";
 
     setCompanyPlans(plansCopy);
   };
@@ -60,13 +77,14 @@ export default function CreateCompany() {
   const submit = () => {
     mutate({
       name,
+      arName: arName,
       email,
       companyType,
       insuranceTypes,
-      ruleType: type,
       companyPlans: companyPlans.map((p) => ({
         planId: p.planId,
         features: p.features,
+        arFeatures: p.arFeatures,
       })),
     });
   };
@@ -77,11 +95,19 @@ export default function CreateCompany() {
 
       {/* ---------- Name ---------- */}
       <TextField
-        label="اسم الشركة"
+        label="اسم الشركة باللغه الانجليزيه"
         fullWidth
         value={name}
         onChange={(e) => setName(e.target.value)}
       />
+      <div className="mt-4">
+        <TextField
+          label="اسم الشركة باللغه العربيه"
+          fullWidth
+          value={arName}
+          onChange={(e) => setArName(e.target.value)}
+        />
+      </div>
 
       {/* ---------- Email ---------- */}
       <div className="mt-4">
@@ -129,23 +155,6 @@ export default function CreateCompany() {
         />
       </div>
 
-      {insuranceTypes.includes("CAR") ? (
-        <div className="mt-4">
-          <Autocomplete
-            options={[
-              { label: "مجموعات", value: "GROUP" },
-              { label: "مبالغ", value: "RANGE" },
-            ]}
-            isOptionEqualToValue={(option, value) =>
-              option.value === value.value
-            }
-            onChange={(_, value) => setType(value?.value || "")}
-            renderInput={(params) => (
-              <TextField {...params} label="طريقة اضافة السيارات" />
-            )}
-          />
-        </div>
-      ) : null}
       {/* ---------- Company Plans ---------- */}
       <div className="mt-6">
         <h2 className="font-semibold mb-3">باقات الشركة</h2>
@@ -170,16 +179,31 @@ export default function CreateCompany() {
 
             {/* Features */}
             <div className="mt-3">
-              <TextField
-                label="إضافة ميزة"
-                fullWidth
-                value={plan.featureInput || ""}
-                onChange={(e) => {
-                  const copy = [...companyPlans];
-                  copy[index].featureInput = e.target.value;
-                  setCompanyPlans(copy);
-                }}
-              />
+              <div className="mb-3">
+                <TextField
+                  label="إضافة ميزة باللغه الانجليزيه"
+                  fullWidth
+                  value={plan.featureInput || ""}
+                  onChange={(e) => {
+                    const copy = [...companyPlans];
+                    copy[index].featureInput = e.target.value;
+                    setCompanyPlans(copy);
+                  }}
+                />
+              </div>
+
+              <div>
+                <TextField
+                  label="إضافة ميزة باللغه العربيه"
+                  fullWidth
+                  value={plan.arfeatureInput || ""}
+                  onChange={(e) => {
+                    const copy = [...companyPlans];
+                    copy[index].arfeatureInput = e.target.value;
+                    setCompanyPlans(copy);
+                  }}
+                />
+              </div>
 
               <button
                 className="mt-2 bg-blue-500 text-white px-3 py-1 rounded"
@@ -190,7 +214,7 @@ export default function CreateCompany() {
               <ul className="mt-4">
                 {plan.features.map((f, i) => (
                   <li key={i} className="text-md text-gray-500 mb-1">
-                    • {f}
+                    • {f} - {plan.arFeatures[i]}
                   </li>
                 ))}
               </ul>

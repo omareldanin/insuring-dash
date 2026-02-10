@@ -36,7 +36,7 @@ export default function Companies() {
     onSuccess: () => {
       toast.success("تم حذف الشركه بنجاح");
       queryClient.invalidateQueries({
-        queryKey: ["cars"],
+        queryKey: ["companies"],
       });
       setIsDialogOpen(false);
     },

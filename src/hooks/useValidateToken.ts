@@ -7,7 +7,8 @@ export const useValidateToken = () => {
     queryKey: ["validateToken"],
     queryFn: refreshTokenService,
     enabled: !!token,
-    staleTime: 1000 * 60, // 1 minute
+    refetchOnMount: false,
+    refetchOnWindowFocus: true,
     retry: false,
   });
 };

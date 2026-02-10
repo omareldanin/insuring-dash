@@ -1,5 +1,5 @@
 import { NavLink } from "react-router-dom";
-import { Home, X, Users, Building, Layers, Car } from "lucide-react";
+import { Home, Users, Building, Layers, Car, XCircle } from "lucide-react";
 import logo from "../assets/logo-l.png";
 interface SidebarProps {
   isOpen: boolean;
@@ -12,19 +12,19 @@ const Sidebar = ({ isOpen, onClose }: SidebarProps) => {
       {/* Overlay (sidebar) */}
       <div
         onClick={onClose}
-        className={`fixed inset-0 bg-black bg-opacity-40 z-40 transition-opacity lg:hidden ${
-          isOpen ? "opacity-100 visible" : "opacity-0 invisible"
+        className={`fixed inset-0 bg-[#000] bg-opacity-40 z-40 transition-opacity lg:hidden ${
+          isOpen ? "opacity-50 visible" : "opacity-0 invisible"
         }`}
       />
 
       <div
-        className={`fixed top-0 right-0 bottom-0 w-70 bg-[#21114A] text-white h-screen p-4 flex flex-col pt-2 z-50 transition-transform duration-300
+        className={`fixed top-0 right-0 bottom-0 w-65 bg-[#21114A] text-white h-screen p-4 flex flex-col pt-2 z-50 transition-transform duration-300
         ${isOpen ? "translate-x-0" : "translate-x-full"} lg:translate-x-0`}>
         {/* Close button on mobile */}
         <button
           onClick={onClose}
-          className="absolute top-4 left-4 lg:hidden text-white">
-          <X size={28} />
+          className="absolute top-2 right-2 lg:hidden text-red">
+          <XCircle size={30} color="red" />
         </button>
 
         {/* Logo */}

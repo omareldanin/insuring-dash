@@ -10,6 +10,7 @@ import { getCompanyById, updateCompany } from "../../../services/companies";
 import toast from "react-hot-toast";
 import type { AxiosError } from "axios";
 import type { APIError } from "../../../api/api";
+import Loading from "../../../components/loading";
 
 export default function EditCompany() {
   const { id } = useParams();
@@ -17,17 +18,24 @@ export default function EditCompany() {
 
   const { data: plans } = usePlans();
 
+  const [arName, setArName] = useState("");
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [companyType, setCompanyType] = useState<string | undefined>();
 
   const [insuranceTypes, setInsuranceTypes] = useState<string[]>([]);
   const [companyPlans, setCompanyPlans] = useState<
-    { planId: number; features: string[]; featureInput?: string }[]
+    {
+      planId: number;
+      features: string[];
+      arFeatures: string[];
+      featureInput?: string;
+      arfeatureInput?: string;
+    }[]
   >([]);
 
   // ---------------- Fetch Company ----------------
-  const { data: companyData } = useQuery({
+  const { data: companyData, isLoading } = useQuery({
     queryKey: ["company", id],
     queryFn: () => getCompanyById(Number(id)),
     enabled: !!id,
@@ -36,11 +44,11 @@ export default function EditCompany() {
   // ---------------- Fill Form ----------------
   useEffect(() => {
     if (!companyData) return;
-    console.log(companyData);
 
     const company = companyData;
 
     setName(company.name);
+    setArName(company.arName);
     setEmail(company.email);
     setCompanyType(company.companyType);
     setInsuranceTypes(company.insuranceTypes);
@@ -49,6 +57,7 @@ export default function EditCompany() {
       company.companyPlans.map((p: any) => ({
         planId: p.planId,
         features: p.features,
+        arFeatures: p.arFeatures,
       })),
     );
   }, [companyData]);
@@ -67,22 +76,28 @@ export default function EditCompany() {
 
   // ---------------- Plan handlers ----------------
   const addPlan = () => {
-    setCompanyPlans((prev) => [...prev, { planId: 0, features: [] }]);
+    setCompanyPlans((prev) => [
+      ...prev,
+      { planId: 0, features: [], arFeatures: [] },
+    ]);
   };
 
   const removePlan = (index: number) => {
     setCompanyPlans((prev) => prev.filter((_, i) => i !== index));
   };
-
   const addFeature = (index: number) => {
-    const copy = [...companyPlans];
-    const feature = copy[index].featureInput?.trim();
+    const plansCopy = [...companyPlans];
+    const feature = plansCopy[index].featureInput?.trim();
+    const arfeature = plansCopy[index].arfeatureInput?.trim();
 
-    if (!feature) return;
+    if (!feature || !arfeature) return;
 
-    copy[index].features.push(feature);
-    copy[index].featureInput = "";
-    setCompanyPlans(copy);
+    plansCopy[index].features.push(feature);
+    plansCopy[index].arFeatures.push(arfeature);
+    plansCopy[index].featureInput = "";
+    plansCopy[index].arfeatureInput = "";
+
+    setCompanyPlans(plansCopy);
   };
 
   // ---------------- Submit ----------------
@@ -90,27 +105,38 @@ export default function EditCompany() {
     mutate({
       name,
       email,
+      arName: arName,
       companyType,
       insuranceTypes,
       companyPlans: companyPlans.map((p) => ({
         planId: p.planId,
         features: p.features,
+        arFeatures: p.arFeatures,
       })),
     });
   };
-
+  if (isLoading) {
+    return <Loading />;
+  }
   return (
     <div className="bg-white shadow rounded-2xl p-6 max-w-3xl mx-auto">
       <h1 className="text-xl font-bold mb-6 text-[#121E2C]">تعديل الشركة</h1>
 
       {/* ---------- Name ---------- */}
       <TextField
-        label="اسم الشركة"
+        label="اسم الشركة باللغه الانجليزيه"
         fullWidth
         value={name}
         onChange={(e) => setName(e.target.value)}
       />
-
+      <div className="mt-4">
+        <TextField
+          label="اسم الشركة باللغه العربيه"
+          fullWidth
+          value={arName}
+          onChange={(e) => setArName(e.target.value)}
+        />
+      </div>
       {/* ---------- Email ---------- */}
       <div className="mt-4">
         <TextField
@@ -189,16 +215,31 @@ export default function EditCompany() {
 
             {/* Features */}
             <div className="mt-3">
-              <TextField
-                label="إضافة ميزة"
-                fullWidth
-                value={plan.featureInput || ""}
-                onChange={(e) => {
-                  const copy = [...companyPlans];
-                  copy[index].featureInput = e.target.value;
-                  setCompanyPlans(copy);
-                }}
-              />
+              <div className="mb-3">
+                <TextField
+                  label="إضافة ميزة باللغه الانجليزيه"
+                  fullWidth
+                  value={plan.featureInput || ""}
+                  onChange={(e) => {
+                    const copy = [...companyPlans];
+                    copy[index].featureInput = e.target.value;
+                    setCompanyPlans(copy);
+                  }}
+                />
+              </div>
+
+              <div>
+                <TextField
+                  label="إضافة ميزة باللغه العربيه"
+                  fullWidth
+                  value={plan.arfeatureInput || ""}
+                  onChange={(e) => {
+                    const copy = [...companyPlans];
+                    copy[index].arfeatureInput = e.target.value;
+                    setCompanyPlans(copy);
+                  }}
+                />
+              </div>
 
               <button
                 className="mt-2 bg-blue-500 text-white px-3 py-1 rounded"
@@ -208,8 +249,8 @@ export default function EditCompany() {
 
               <ul className="mt-4">
                 {plan.features.map((f, i) => (
-                  <li key={i} className="text-gray-500 mb-1">
-                    • {f}
+                  <li key={i} className="text-md text-gray-500 mb-1">
+                    • {f} - {plan.arFeatures[i]}
                   </li>
                 ))}
               </ul>

@@ -14,7 +14,7 @@ export default function Navbar({ toggleSidebar }: NavbarProps) {
   const navigate = useNavigate();
 
   return (
-    <header className="fixed top-0 left-0 right-0 lg:right-70 bg-white shadow-sm px-6 py-3 flex items-center justify-between z-40">
+    <header className="fixed top-0 left-0 right-0 lg:right-65 bg-white shadow-sm px-6 py-3 flex items-center justify-between z-40">
       {/* Left: Toggle button (mobile only) */}
       <div className="flex gap-2">
         <button

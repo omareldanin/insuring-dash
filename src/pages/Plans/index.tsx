@@ -88,7 +88,7 @@ export default function Plans() {
                         {plan.name}
                       </td>
                       <td className="p-3 border-b border-gray-200">
-                        {plan.hint}
+                        {plan.hint || "لا يوجد"}
                       </td>
                       <td className="p-3 border-b border-gray-200">
                         {plan.insuranceType}

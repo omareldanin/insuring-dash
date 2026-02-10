@@ -1,6 +1,5 @@
-import { Outlet } from "react-router-dom";
+import { Navigate, Outlet } from "react-router-dom";
 import { useValidateToken } from "../../hooks/useValidateToken";
-import Login from "../../pages/Login";
 
 const PrivateRoutes = () => {
   const { isSuccess, isLoading, isError } = useValidateToken();
@@ -10,10 +9,10 @@ const PrivateRoutes = () => {
   }
 
   if (isError) {
-    return <Login />;
+    return <Navigate to="/" replace />;
   }
 
-  return isSuccess ? <Outlet /> : <Login />;
+  return isSuccess ? <Outlet /> : <Navigate to="/" replace />;
 };
 
 export default PrivateRoutes;

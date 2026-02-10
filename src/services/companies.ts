@@ -33,6 +33,7 @@ export interface Company {
   id: number;
   createdAt: Date;
   name: string;
+  arName: string;
   email: string;
   ruleType: string;
   companyType: "SOLIDARITY" | "COMMERCIAL";
