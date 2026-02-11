@@ -59,7 +59,13 @@ export default function Filters() {
       {/* ---------- Content ---------- */}
       {isLoading && <Loading />}
 
-      {plan && <AddHealthRule planId={plan} insuranceCompanyId={Number(id)} />}
+      {plan && (
+        <AddHealthRule
+          planId={plan}
+          insuranceCompanyId={Number(id)}
+          rules={rules?.health}
+        />
+      )}
       {rules && (
         <>
           <HealthTable data={rules.health} />

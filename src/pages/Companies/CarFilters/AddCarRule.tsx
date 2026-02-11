@@ -7,14 +7,19 @@ import toast from "react-hot-toast";
 import { queryClient } from "../../../main";
 import type { AxiosError } from "axios";
 import type { APIError } from "../../../api/api";
-import { upsertCarRules } from "../../../services/rules";
+import { upsertCarRules, type Car } from "../../../services/rules";
 
 interface Props {
   planId: number;
   insuranceCompanyId: number;
+  rules?: Car;
 }
 
-export default function AddCarRule({ planId, insuranceCompanyId }: Props) {
+export default function AddCarRule({
+  planId,
+  insuranceCompanyId,
+  rules,
+}: Props) {
   const [from, setFrom] = useState<number | undefined>();
   const [to, setTo] = useState<number | undefined>();
   const [type, setType] = useState<"used" | "new" | null>(null);
@@ -38,9 +43,27 @@ export default function AddCarRule({ planId, insuranceCompanyId }: Props) {
   });
 
   const submit = () => {
-    if (!to || !type || !persitage) {
+    if ((!from && from !== 0) || !to || !type || !persitage) {
       toast.error("من فضلك أكمل جميع الحقول");
       return;
+    }
+
+    if (to <= from) {
+      toast.error("القيمة (إلي) يجب ان تكون اكبر من القيمه (من)", {
+        duration: 5000,
+      });
+      return;
+    }
+    const filteredRules =
+      type === "new" ? rules?.new?.range : rules?.used?.range;
+
+    for (const r of filteredRules || []) {
+      if (from >= r.from && from <= r.to) {
+        toast.error("القيمة (من) موجودة مسبقاً", {
+          duration: 5000,
+        });
+        return;
+      }
     }
 
     mutate({

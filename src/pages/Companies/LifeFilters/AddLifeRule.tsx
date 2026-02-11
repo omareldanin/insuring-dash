@@ -7,14 +7,19 @@ import toast from "react-hot-toast";
 import { queryClient } from "../../../main";
 import type { AxiosError } from "axios";
 import type { APIError } from "../../../api/api";
-import { upsertLifeRules } from "../../../services/rules";
+import { upsertLifeRules, type Life } from "../../../services/rules";
 
 interface Props {
   planId: number;
   insuranceCompanyId: number;
+  rules?: Life[];
 }
 
-export default function AddLifeRule({ planId, insuranceCompanyId }: Props) {
+export default function AddLifeRule({
+  planId,
+  insuranceCompanyId,
+  rules,
+}: Props) {
   const [from, setFrom] = useState<number | undefined>();
   const [to, setTo] = useState<number | undefined>();
   const [gender, setGender] = useState<"male" | "female" | null>(null);
@@ -38,11 +43,32 @@ export default function AddLifeRule({ planId, insuranceCompanyId }: Props) {
   });
 
   const submit = () => {
-    if (!to || !gender || !persitage) {
+    // Basic validation
+    if ((!from && from !== 0) || !to || !gender || !persitage) {
       toast.error("من فضلك أكمل جميع الحقول");
       return;
     }
 
+    // Logical validation
+    if (to <= from) {
+      toast.error("القيمة (إلي) يجب ان تكون اكبر من القيمه (من)", {
+        duration: 5000,
+      });
+      return;
+    }
+
+    const filteredRules = rules?.filter((r) => r.gender === gender) || [];
+
+    for (const r of filteredRules) {
+      if (from >= r.from && from <= r.to) {
+        toast.error("القيمة (من) موجودة مسبقاً", {
+          duration: 5000,
+        });
+        return; // ⛔ STOP submit completely
+      }
+    }
+
+    // ✅ Only reached if everything is valid
     mutate({
       rules: [
         {
@@ -50,7 +76,7 @@ export default function AddLifeRule({ planId, insuranceCompanyId }: Props) {
           to,
           gender,
           persitage,
-          insuranceType: "HEALTH",
+          insuranceType: "LIFE",
           planId,
           insuranceCompanyId,
         },

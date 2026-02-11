@@ -26,7 +26,6 @@ export default function LifeFilters() {
 
   return (
     <div className="bg-white rounded-2xl p-6 shadow">
-      {/* ---------- Plans Tabs ---------- */}
       <Box
         sx={{
           border: 1,
@@ -58,7 +57,13 @@ export default function LifeFilters() {
 
       {/* ---------- Content ---------- */}
       {isLoading && <Loading />}
-      {plan && <AddLifeRule planId={plan} insuranceCompanyId={Number(id)} />}
+      {plan && (
+        <AddLifeRule
+          planId={plan}
+          insuranceCompanyId={Number(id)}
+          rules={rules?.life}
+        />
+      )}
       {rules && (
         <>
           <LifeTable data={rules.life} />

@@ -32,7 +32,7 @@ export default function EditPlan() {
   const [hintEn, setHintEn] = useState("");
 
   const [recommend, setRecommend] = useState(false);
-  const [insuranceType, setInsuranceType] = useState<InsuranceType>("HEALTH");
+  const [insuranceType, setInsuranceType] = useState("HEALTH");
 
   const [description, setDescription] = useState<{
     ar: string[];
@@ -55,7 +55,11 @@ export default function EditPlan() {
     setHintEn(plan.hint ?? "");
     setHintAr(plan.arHint ?? "");
     setRecommend(!!plan.recommend);
-    setInsuranceType(plan.insuranceType ?? "HEALTH");
+    setInsuranceType(
+      plan.insuranceType === "HEALTH" && plan.forHealthGroups
+        ? "HEALTHGroup"
+        : (plan.insuranceType ?? "HEALTH"),
+    );
 
     setDescription({
       en: Array.isArray(plan.description) ? plan.description : [],
@@ -119,7 +123,8 @@ export default function EditPlan() {
       hint: hintEn,
       arHint: hintAr,
       recommend,
-      insuranceType,
+      insuranceType: insuranceType === "HEALTHGroup" ? "HEALTH" : insuranceType,
+      forHealthGroups: insuranceType === "HEALTHGroup" ? true : false,
       description: description.en,
       arDescription: description.ar,
     });
@@ -188,9 +193,10 @@ export default function EditPlan() {
           value={insuranceType}
           onChange={(e) => setInsuranceType(e.target.value as InsuranceType)}
           className="w-full px-4 py-3 border p-2 rounded-lg text-[#121E2C] rounded-lg">
-          <option value="HEALTH">Health</option>
-          <option value="LIFE">Life</option>
-          <option value="CAR">Car</option>
+          <option value="HEALTH">صحي</option>
+          <option value="HEALTHGroup">صحي جماعي</option>
+          <option value="LIFE">حياه</option>
+          <option value="CAR">سيارات</option>
         </select>
       </div>
 

@@ -59,7 +59,13 @@ export default function CarFilters() {
       {/* ---------- Content ---------- */}
       {isLoading && <Loading />}
 
-      {plan && <AddCarRule planId={plan} insuranceCompanyId={Number(id)} />}
+      {plan && (
+        <AddCarRule
+          planId={plan}
+          insuranceCompanyId={Number(id)}
+          rules={rules?.car}
+        />
+      )}
       <h3 className="font-bold mb-3 text-red-800 text-center">
         السيارات الجديده
       </h3>

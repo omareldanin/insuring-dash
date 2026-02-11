@@ -133,21 +133,43 @@ export default function Companies() {
                           : "تكافلي"}
                       </td>
                       <td className="p-3 border-b border-gray-200">
-                        {company.insuranceTypes.map((type) => (
-                          <button
-                            className="bg-gray-800 text-white px-4 py-2 rounded-lg hover:bg-gray-800 ml-2"
-                            onClick={() =>
-                              navigation(
-                                `/companies/${type}/filters${type === "CAR" ? "/" + company.ruleType : ""}/${company.id}`,
-                              )
-                            }>
-                            {type === "CAR"
-                              ? "سيارات"
-                              : type === "LIFE"
-                                ? "حياه"
-                                : "صحي"}
-                          </button>
-                        ))}
+                        {company.insuranceTypes.map((type) => {
+                          if (type === "CAR") {
+                            return (
+                              <>
+                                <button
+                                  className="bg-gray-800 text-white px-4 py-2 rounded-lg hover:bg-gray-800 ml-2"
+                                  onClick={() =>
+                                    navigation(
+                                      `/companies/${type}/filters/GROUP/${company.id}`,
+                                    )
+                                  }>
+                                  سيارات مجموعات
+                                </button>
+                                <button
+                                  className="bg-gray-800 text-white px-4 py-2 rounded-lg hover:bg-gray-800 ml-2"
+                                  onClick={() =>
+                                    navigation(
+                                      `/companies/${type}/filters/RANGE/${company.id}`,
+                                    )
+                                  }>
+                                  سيارات مبالغ
+                                </button>
+                              </>
+                            );
+                          }
+                          return (
+                            <button
+                              className="bg-gray-800 text-white px-4 py-2 rounded-lg hover:bg-gray-800 ml-2"
+                              onClick={() =>
+                                navigation(
+                                  `/companies/${type}/filters/${company.id}`,
+                                )
+                              }>
+                              {type === "LIFE" ? "حياه" : "صحي"}
+                            </button>
+                          );
+                        })}
                       </td>
 
                       <td className="p-3 border-b border-gray-200">

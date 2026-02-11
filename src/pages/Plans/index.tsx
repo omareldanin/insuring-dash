@@ -91,7 +91,13 @@ export default function Plans() {
                         {plan.hint || "لا يوجد"}
                       </td>
                       <td className="p-3 border-b border-gray-200">
-                        {plan.insuranceType}
+                        {plan.insuranceType === "HEALTH" && plan.forHealthGroups
+                          ? "صحي جماعي"
+                          : plan.insuranceType === "HEALTH"
+                            ? "صحي"
+                            : plan.insuranceType === "CAR"
+                              ? "سيارات"
+                              : "حياه"}
                       </td>
                       <td className="p-3 border-b border-gray-200">
                         {plan.recommend ? "نعم" : "لا"}

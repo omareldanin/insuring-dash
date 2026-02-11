@@ -26,7 +26,7 @@ export default function CreatePlan() {
   const [hintEn, setHintEn] = useState("");
 
   const [recommend, setRecommend] = useState(false);
-  const [insuranceType, setInsuranceType] = useState<InsuranceType>("HEALTH");
+  const [insuranceType, setInsuranceType] = useState("HEALTH");
 
   // ===== Description (features) =====
   const [description, setDescription] = useState<{
@@ -58,7 +58,7 @@ export default function CreatePlan() {
     onSuccess: () => {
       toast.success("تم إضافة الباقة بنجاح");
       queryClient.invalidateQueries({ queryKey: ["plans"] });
-      navigate("/plans");
+      // navigate("/plans");
     },
     onError: (error: AxiosError<APIError>) => {
       toast.error(error.response?.data.message || "حدث خطأ ما");
@@ -96,7 +96,8 @@ export default function CreatePlan() {
       hint: hintEn,
       arHint: hintAr,
       recommend,
-      insuranceType,
+      insuranceType: insuranceType === "HEALTHGroup" ? "HEALTH" : insuranceType,
+      forHealthGroups: insuranceType === "HEALTHGroup" ? true : false,
       description: description.en,
       arDescription: description.ar,
     });
@@ -166,6 +167,7 @@ export default function CreatePlan() {
           onChange={(e) => setInsuranceType(e.target.value as InsuranceType)}
           className="w-full px-4 py-3 border p-2 rounded-lg text-[#121E2C] rounded-lg">
           <option value="HEALTH">صحي</option>
+          <option value="HEALTHGroup">صحي جماعي</option>
           <option value="LIFE">حياه</option>
           <option value="CAR">سيارات</option>
         </select>

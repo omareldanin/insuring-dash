@@ -10,6 +10,7 @@ export interface Plan {
   hint: string;
   description: string[];
   recommend: boolean;
+  forHealthGroups: boolean;
   insuranceType: InsuranceType;
 }
 
@@ -35,6 +36,7 @@ export const createPlan = (data: {
   hint: string;
   arHint: string;
   recommend: boolean;
+  forHealthGroups: boolean;
   insuranceType: string;
   description?: string[];
   arDescription?: string[];
