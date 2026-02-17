@@ -1,7 +1,7 @@
 import axios from "axios";
 // import toast from "react-hot-toast";
 
-export const baseURL = "http://207.154.215.133:3000/";
+export const baseURL = "https://api.bfibrokerage.com/";
 
 export interface APIError {
   message: string;
