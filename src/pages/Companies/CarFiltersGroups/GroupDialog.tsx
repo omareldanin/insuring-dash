@@ -12,6 +12,7 @@ import {
   Checkbox,
   ListItemText,
   Autocomplete,
+  Box,
 } from "@mui/material";
 import { useEffect, useMemo, useState } from "react";
 import { getMakes, getModels, getYears } from "../../../services/cars";
@@ -40,9 +41,12 @@ export function GroupDialog({
   planId,
   insuranceCompanyId,
 }: Props) {
+  const [cars, setCars] = useState<
+    { makeId: number | ""; modelId: number | ""; years: number[] }[]
+  >([{ makeId: "", modelId: "", years: [] }]);
   const [mode, setMode] = useState<"create" | "append">("create");
   const [type] = useState<CarType>(defaultType);
-
+  const [groupError, setGroupError] = useState("");
   const [groupName, setGroupName] = useState("");
 
   /* ---------- Groups Names ---------- */
@@ -57,50 +61,49 @@ export function GroupDialog({
 
   /* ---------- Cars Data ---------- */
   const [makes, setMakes] = useState<any[]>([]);
-  const [models, setModels] = useState<any[]>([]);
-  const [years, setYears] = useState<any[]>([]);
+  // const [models, setModels] = useState<any[]>([]);
+  // const [years, setYears] = useState<any[]>([]);
   const [persitage, setPersitage] = useState<string>("0");
 
-  const [makeId, setMakeId] = useState<number | "">("");
-  const [modelId, setModelId] = useState<number | "">("");
-  const [selectedYears, setSelectedYears] = useState<number[]>([]);
+  // const [makeId, setMakeId] = useState<number | "">("");
+  // const [modelId, setModelId] = useState<number | "">("");
+  // const [selectedYears, setSelectedYears] = useState<number[]>([]);
   const [selectedRuleId, setSelectedRuleId] = useState<string>("");
-
+  const [modelsMap, setModelsMap] = useState<Record<number, any[]>>({});
+  const [yearsMap, setYearsMap] = useState<Record<number, any[]>>({});
   /* ---------- Load Makes ---------- */
   useEffect(() => {
     getMakes().then(setMakes);
   }, []);
 
   /* ---------- Load Models ---------- */
-  useEffect(() => {
-    if (makeId) {
-      getModels(makeId).then(setModels);
-    } else {
-      setModels([]);
-      setModelId("");
-    }
-  }, [makeId]);
+  // useEffect(() => {
+  //   if (makeId) {
+  //     getModels(makeId).then(setModels);
+  //   } else {
+  //     setModels([]);
+  //     setModelId("");
+  //   }
+  // }, [makeId]);
 
-  /* ---------- Load Years ---------- */
-  useEffect(() => {
-    if (modelId) {
-      getYears(modelId).then((res) => setYears(res));
-    } else {
-      setYears([]);
-      setSelectedYears([]);
-    }
-  }, [modelId]);
+  // /* ---------- Load Years ---------- */
+  // useEffect(() => {
+  //   if (modelId) {
+  //     getYears(modelId).then((res) => setYears(res));
+  //   } else {
+  //     setYears([]);
+  //     setSelectedYears([]);
+  //   }
+  // }, [modelId]);
 
   const { mutate: updateRule, isPending: updateLoading } = useMutation({
     mutationFn: upsertCarRules,
     onSuccess: () => {
       toast.success("تم التعديل بنجاح");
       queryClient.invalidateQueries({ queryKey: ["rules"] });
-      setMakeId("");
-      setModelId("");
       setMode("create");
       setGroupName("");
-      setSelectedYears([]);
+      setCars([]);
       onClose();
     },
     onError: () => {
@@ -110,6 +113,13 @@ export function GroupDialog({
 
   /* ---------- Submit ---------- */
   const handleSubmit = async () => {
+    if (mode === "create") {
+      const checkIfExist = existingGroupNames.find((g) => g.name === groupName);
+      if (checkIfExist) {
+        toast.error("إسم المجموعه متكرر");
+        return;
+      }
+    }
     const payload: any = {
       ruleType: "GROUP",
       persitage: +persitage,
@@ -120,13 +130,11 @@ export function GroupDialog({
       groups: [
         {
           groupName,
-          cars: [
-            {
-              makeId,
-              modelId,
-              years: selectedYears,
-            },
-          ],
+          cars: cars.map((c) => ({
+            makeId: c.makeId,
+            modelId: c.modelId,
+            years: c.years,
+          })),
         },
       ],
     };
@@ -135,10 +143,74 @@ export function GroupDialog({
     if (mode === "append") {
       payload.id = selectedRuleId;
     }
-    console.log(payload);
     updateRule(payload);
-    // await onSubmi    t(payload);
+    // await onSubmit(payload);
     // onClose();
+  };
+
+  const validateGroupName = (value: string) => {
+    if (!value.trim()) {
+      setGroupError("اسم المجموعة مطلوب");
+      return false;
+    }
+
+    if (mode === "create") {
+      const exists = existingGroupNames.find(
+        (g) => g.name.trim() === value.trim(),
+      );
+
+      if (exists) {
+        setGroupError("إسم المجموعة متكرر");
+        return false;
+      }
+    }
+
+    setGroupError("");
+    return true;
+  };
+
+  const addCarRow = () => {
+    setCars([...cars, { makeId: "", modelId: "", years: [] }]);
+  };
+
+  const removeCarRow = (index: number) => {
+    setCars(cars.filter((_, i) => i !== index));
+  };
+
+  const updateCar = async (
+    index: number,
+    field: "makeId" | "modelId" | "years",
+    value: any,
+  ) => {
+    const updated = [...cars];
+    updated[index][field] = value;
+
+    if (field === "makeId") {
+      updated[index].modelId = "";
+      updated[index].years = [];
+
+      if (value) {
+        const res = await getModels(value);
+        setModelsMap((prev) => ({
+          ...prev,
+          [index]: res,
+        }));
+      }
+    }
+
+    if (field === "modelId") {
+      updated[index].years = [];
+
+      if (value) {
+        const res = await getYears(value);
+        setYearsMap((prev) => ({
+          ...prev,
+          [index]: res,
+        }));
+      }
+    }
+
+    setCars(updated);
   };
 
   return (
@@ -161,7 +233,13 @@ export function GroupDialog({
           <TextField
             label="اسم المجموعة"
             value={groupName}
-            onChange={(e) => setGroupName(e.target.value)}
+            onChange={(e) => {
+              const value = e.target.value;
+              setGroupName(value);
+              validateGroupName(value);
+            }}
+            error={!!groupError}
+            helperText={groupError}
             fullWidth
           />
         ) : (
@@ -173,10 +251,6 @@ export function GroupDialog({
               setPersitage(
                 existingGroupRules.find((r) => r.id === e.target.value)
                   .persitage,
-              );
-              console.log(
-                existingGroupRules.find((r) => r.id === e.target.value)
-                  .groups[0].groupName,
               );
 
               setGroupName(
@@ -205,7 +279,7 @@ export function GroupDialog({
         </FormControl>
 
         {/* ---------- Make ---------- */}
-        <Autocomplete
+        {/* <Autocomplete
           options={makes}
           getOptionLabel={(option) => option.name}
           value={makes.find((m) => m.id === makeId) || null}
@@ -217,10 +291,10 @@ export function GroupDialog({
             <TextField {...params} label="الماركة" fullWidth />
           )}
           isOptionEqualToValue={(opt, val) => opt.id === val.id}
-        />
+        /> */}
 
         {/* ---------- Model ---------- */}
-        <Autocomplete
+        {/* <Autocomplete
           options={models}
           getOptionLabel={(option) => option.name}
           value={models.find((m) => m.id === modelId) || null}
@@ -236,10 +310,10 @@ export function GroupDialog({
             />
           )}
           isOptionEqualToValue={(opt, val) => opt.id === val.id}
-        />
+        /> */}
 
         {/* ---------- Years ---------- */}
-        <FormControl fullWidth disabled={!modelId}>
+        {/* <FormControl fullWidth disabled={!modelId}>
           <InputLabel>سنوات الصنع</InputLabel>
           <Select
             multiple
@@ -254,7 +328,86 @@ export function GroupDialog({
               </MenuItem>
             ))}
           </Select>
-        </FormControl>
+        </FormControl> */}
+
+        {cars.map((car, index) => (
+          <Box
+            key={index}
+            sx={{
+              border: "1px solid #eee",
+              borderRadius: 2,
+              p: 2,
+              display: "grid",
+              gap: 2,
+            }}>
+            {/* ---------- Make ---------- */}
+            <Autocomplete
+              options={makes}
+              getOptionLabel={(option) => option.name}
+              value={makes.find((m) => m.id === car.makeId) || null}
+              onChange={(_, newValue) =>
+                updateCar(index, "makeId", newValue ? newValue.id : "")
+              }
+              renderInput={(params) => (
+                <TextField {...params} label="الماركة" fullWidth />
+              )}
+              isOptionEqualToValue={(opt, val) => opt.id === val.id}
+            />
+
+            {/* ---------- Model ---------- */}
+            <Autocomplete
+              options={modelsMap[index] || []}
+              getOptionLabel={(option) => option.name}
+              value={
+                (modelsMap[index] || []).find((m) => m.id === car.modelId) ||
+                null
+              }
+              onChange={(_, newValue) =>
+                updateCar(index, "modelId", newValue ? newValue.id : "")
+              }
+              renderInput={(params) => (
+                <TextField
+                  {...params}
+                  label="الموديل"
+                  fullWidth
+                  disabled={!car.makeId}
+                />
+              )}
+              isOptionEqualToValue={(opt, val) => opt.id === val.id}
+            />
+
+            {/* ---------- Years ---------- */}
+            <FormControl fullWidth disabled={!car.modelId}>
+              <InputLabel>سنوات الصنع</InputLabel>
+              <Select
+                multiple
+                label="سنوات الصنع"
+                value={car.years}
+                renderValue={(selected) => selected.join(", ")}
+                onChange={(e) =>
+                  updateCar(index, "years", e.target.value as number[])
+                }>
+                {(yearsMap[index] || []).map((y) => (
+                  <MenuItem key={y.year} value={y.year}>
+                    <Checkbox checked={car.years.includes(y.year)} />
+                    <ListItemText primary={y.year} />
+                  </MenuItem>
+                ))}
+              </Select>
+            </FormControl>
+
+            {/* Remove Button */}
+            {cars.length > 1 && (
+              <Button color="error" onClick={() => removeCarRow(index)}>
+                حذف
+              </Button>
+            )}
+          </Box>
+        ))}
+
+        <Button onClick={addCarRow} variant="outlined">
+          + إضافة موديل آخر
+        </Button>
       </DialogContent>
 
       <DialogActions>
@@ -262,13 +415,7 @@ export function GroupDialog({
         <Button
           onClick={handleSubmit}
           variant="contained"
-          disabled={
-            !groupName ||
-            !makeId ||
-            !modelId ||
-            selectedYears.length === 0 ||
-            (mode === "append" && !selectedRuleId)
-          }>
+          disabled={!groupName || cars.length === 0}>
           {updateLoading ? "جاري الحفظ.." : "حفظ"}
         </Button>
       </DialogActions>

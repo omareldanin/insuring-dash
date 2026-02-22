@@ -24,6 +24,12 @@ export default function AddCarRule({
   const [to, setTo] = useState<number | undefined>();
   const [type, setType] = useState<"used" | "new" | null>(null);
   const [persitage, setPersitage] = useState<number | undefined>();
+  const [errors, setErrors] = useState<{
+    from?: string;
+    to?: string;
+    type?: string;
+    persitage?: string;
+  }>({});
 
   const { mutate, isPending } = useMutation({
     mutationFn: upsertCarRules,
@@ -78,6 +84,46 @@ export default function AddCarRule({
     });
   };
 
+  const validate = () => {
+    const newErrors: typeof errors = {};
+
+    if (!from && from !== 0) {
+      newErrors.from = "القيمة (من) مطلوبة";
+    }
+
+    if (!to && to !== 0) {
+      newErrors.to = "القيمة (إلى) مطلوبة";
+    }
+
+    if (!type) {
+      newErrors.type = "النوع مطلوب";
+    }
+
+    if (!persitage && persitage !== 0) {
+      newErrors.persitage = "النسبة مطلوبة";
+    }
+
+    if (to && from) {
+      if (to <= from) {
+        newErrors.to = "القيمة (إلى) يجب أن تكون أكبر من (من)";
+      }
+
+      const filteredRules =
+        type === "new" ? rules?.new?.range : rules?.used?.range;
+
+      for (const r of filteredRules || []) {
+        if (from >= r.from && from <= r.to) {
+          newErrors.from = "القيمة (من) موجودة مسبقاً";
+          break;
+        }
+      }
+    }
+
+    setErrors(newErrors);
+
+    return Object.keys(newErrors).length === 0;
+  };
+
   return (
     <div className="bg-gray-50 border rounded-xl p-4 mb-6">
       <h3 className="font-semibold mb-4 text-gray-700">إضافة فلتر جديد</h3>
@@ -87,14 +133,25 @@ export default function AddCarRule({
           label="من"
           type="number"
           value={from ?? ""}
-          onChange={(e) => setFrom(Number(e.target.value))}
+          onChange={(e) => {
+            setFrom(Number(e.target.value));
+          }}
+          error={!!errors.from}
+          helperText={errors.from}
         />
 
         <TextField
           label="إلى"
           type="number"
           value={to ?? ""}
-          onChange={(e) => setTo(Number(e.target.value))}
+          onChange={(e) => {
+            setTo(Number(e.target.value));
+          }}
+          onBlur={() => {
+            validate();
+          }}
+          error={!!errors.to}
+          helperText={errors.to}
         />
 
         <Autocomplete
@@ -110,7 +167,12 @@ export default function AddCarRule({
                 }
               : null
           }
-          onChange={(_, v) => setType(v?.value as "new" | "used" | null)}
+          onChange={(_, v) => {
+            setType(v?.value as "new" | "used" | null);
+          }}
+          onBlur={() => {
+            validate();
+          }}
           renderInput={(params) => <TextField {...params} label="النوع" />}
         />
 

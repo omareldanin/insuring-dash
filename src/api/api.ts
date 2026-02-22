@@ -2,6 +2,7 @@ import axios from "axios";
 // import toast from "react-hot-toast";
 
 export const baseURL = "https://api.bfibrokerage.com/";
+// export const baseURL = "http://localhost:3000/";
 
 export interface APIError {
   message: string;
