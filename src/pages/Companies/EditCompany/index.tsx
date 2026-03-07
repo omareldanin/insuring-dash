@@ -22,6 +22,9 @@ export default function EditCompany() {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [companyType, setCompanyType] = useState<string | undefined>();
+  const [logo, setLogo] = useState<File | null>(null);
+  const [logoPreview, setLogoPreview] = useState<string | null>(null);
+  const [link, setLink] = useState("");
 
   const [insuranceTypes, setInsuranceTypes] = useState<string[]>([]);
   const [companyPlans, setCompanyPlans] = useState<
@@ -34,12 +37,21 @@ export default function EditCompany() {
     }[]
   >([]);
 
+  const handleLogoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    setLogo(file);
+    setLogoPreview(URL.createObjectURL(file));
+  };
+
   // ---------------- Fetch Company ----------------
   const { data: companyData, isLoading } = useQuery({
     queryKey: ["company", id],
     queryFn: () => getCompanyById(Number(id)),
     enabled: !!id,
   });
+  console.log(companyData);
 
   // ---------------- Fill Form ----------------
   useEffect(() => {
@@ -48,6 +60,7 @@ export default function EditCompany() {
     const company = companyData;
 
     setName(company.name);
+    setLink(company.link);
     setArName(company.arName);
     setEmail(company.email);
     setCompanyType(company.companyType);
@@ -102,19 +115,32 @@ export default function EditCompany() {
 
   // ---------------- Submit ----------------
   const submit = () => {
-    mutate({
-      name,
-      email,
-      arName: arName,
-      companyType,
-      insuranceTypes,
-      companyPlans: companyPlans.map((p) => ({
-        planId: p.planId,
-        features: p.features,
-        arFeatures: p.arFeatures,
-      })),
-    });
+    const formData = new FormData();
+
+    formData.append("name", name);
+    formData.append("arName", arName);
+    formData.append("email", email);
+    if (companyType) formData.append("companyType", companyType);
+
+    insuranceTypes.forEach((t) => formData.append("insuranceTypes[]", t));
+
+    formData.append(
+      "companyPlans",
+      JSON.stringify(
+        companyPlans.map((p) => ({
+          planId: p.planId,
+          features: p.features,
+          arFeatures: p.arFeatures,
+        })),
+      ),
+    );
+
+    if (logo) formData.append("image", logo);
+    if (link) formData.append("link", link);
+
+    mutate(formData);
   };
+
   if (isLoading) {
     return <Loading />;
   }
@@ -122,13 +148,44 @@ export default function EditCompany() {
     <div className="bg-white shadow rounded-2xl p-6 max-w-3xl mx-auto">
       <h1 className="text-xl font-bold mb-6 text-[#121E2C]">تعديل الشركة</h1>
 
+      <div className="mt-4">
+        <label className="block mb-2 font-medium text-gray-700">
+          شعار الشركة
+        </label>
+
+        <div className="flex items-center gap-4">
+          {logoPreview && (
+            <img
+              src={logoPreview}
+              alt="Company Logo"
+              className="w-16 h-16 object-contain border rounded-lg p-1 bg-white"
+            />
+          )}
+
+          <input
+            type="file"
+            accept="image/*"
+            onChange={handleLogoChange}
+            className="block w-full text-sm text-gray-500
+      file:mr-4 file:py-2 file:px-4
+      file:rounded-lg file:border-0
+      file:text-sm file:font-semibold
+      file:bg-blue-50 file:text-blue-700
+      hover:file:bg-blue-100"
+          />
+        </div>
+      </div>
+
       {/* ---------- Name ---------- */}
-      <TextField
-        label="اسم الشركة باللغه الانجليزيه"
-        fullWidth
-        value={name}
-        onChange={(e) => setName(e.target.value)}
-      />
+      <div className="mt-4">
+        <TextField
+          label="اسم الشركة باللغه الانجليزيه"
+          fullWidth
+          value={name}
+          onChange={(e) => setName(e.target.value)}
+        />
+      </div>
+
       <div className="mt-4">
         <TextField
           label="اسم الشركة باللغه العربيه"
@@ -144,6 +201,16 @@ export default function EditCompany() {
           fullWidth
           value={email}
           onChange={(e) => setEmail(e.target.value)}
+        />
+      </div>
+
+      <div className="mt-4">
+        <TextField
+          label="رابط الدفع"
+          style={{ textAlign: "right" }}
+          fullWidth
+          value={link}
+          onChange={(e) => setLink(e.target.value)}
         />
       </div>
 

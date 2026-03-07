@@ -34,6 +34,8 @@ export interface Company {
   createdAt: Date;
   name: string;
   arName: string;
+  link?: string;
+  logo?: string;
   email: string;
   ruleType: string;
   companyType: "SOLIDARITY" | "COMMERCIAL";
@@ -56,7 +58,11 @@ export const deleteCompany = async (id: number | undefined) => {
 };
 
 export const createCompany = (data: any) => {
-  return api.post("/insurance-companies/create", data);
+  return api.post("/insurance-companies/create", data, {
+    headers: {
+      "Content-Type": "multipart/form-data",
+    },
+  });
 };
 
 export const getCompanyById = async (id: number) => {
@@ -65,5 +71,9 @@ export const getCompanyById = async (id: number) => {
 };
 
 export const updateCompany = (id: number, data: any) => {
-  return api.patch(`/insurance-companies/${id}`, data);
+  return api.patch(`/insurance-companies/${id}`, data, {
+    headers: {
+      "Content-Type": "multipart/form-data",
+    },
+  });
 };

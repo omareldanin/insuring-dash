@@ -22,6 +22,11 @@ import Filters from "./pages/Companies/HealthFilters";
 import LifeFilters from "./pages/Companies/LifeFilters";
 import CarFilters from "./pages/Companies/CarFilters";
 import CarFiltersGroups from "./pages/Companies/CarFiltersGroups";
+import Offers from "./pages/Offers";
+import Documents from "./pages/Documents";
+import DocumentDetails from "./pages/Documents/DocumentDetails";
+import DocumentsRenews from "./pages/Renews/Index";
+import DocumentsReFunds from "./pages/Refunds";
 
 function App() {
   return (
@@ -162,6 +167,47 @@ function App() {
             element={
               <AppLayout>
                 <EditCompany />
+              </AppLayout>
+            }
+          />
+
+          <Route
+            path="/offers"
+            element={
+              <AppLayout>
+                <Offers />
+              </AppLayout>
+            }
+          />
+          <Route
+            path="/documents"
+            element={
+              <AppLayout>
+                <Documents />
+              </AppLayout>
+            }
+          />
+          <Route
+            path="/renews"
+            element={
+              <AppLayout>
+                <DocumentsRenews />
+              </AppLayout>
+            }
+          />
+          <Route
+            path="/refunds"
+            element={
+              <AppLayout>
+                <DocumentsReFunds />
+              </AppLayout>
+            }
+          />
+          <Route
+            path="/documents/:id"
+            element={
+              <AppLayout>
+                <DocumentDetails />
               </AppLayout>
             }
           />

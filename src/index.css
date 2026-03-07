@@ -32,11 +32,13 @@ textarea:focus {
   outline: none;
   resize: none;
 }
-input {
+input,
+textarea {
   color: rgb(0, 0, 0);
   transition: 300;
 }
-input:focus {
+input:focus,
+textarea:focus {
   border-color: #31e5b7;
 }
 

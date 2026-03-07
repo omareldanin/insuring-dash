@@ -1,5 +1,14 @@
 import { NavLink } from "react-router-dom";
-import { Home, Users, Building, Layers, Car, XCircle } from "lucide-react";
+import {
+  Home,
+  Users,
+  Building,
+  Layers,
+  Car,
+  XCircle,
+  BadgePercent,
+  FileText,
+} from "lucide-react";
 import logo from "../assets/logo-l.png";
 interface SidebarProps {
   isOpen: boolean;
@@ -63,6 +72,30 @@ const Sidebar = ({ isOpen, onClose }: SidebarProps) => {
               to: "/cars",
               icon: <Car size={20} />,
               label: "السيارات",
+              roles: ["ADMIN"],
+            },
+            {
+              to: "/documents",
+              icon: <FileText size={20} />,
+              label: "الوثائق",
+              roles: ["ADMIN"],
+            },
+            {
+              to: "/renews",
+              icon: <FileText size={20} />,
+              label: "طلبات التجديد",
+              roles: ["ADMIN"],
+            },
+            {
+              to: "/refunds",
+              icon: <FileText size={20} />,
+              label: "التعويضات",
+              roles: ["ADMIN"],
+            },
+            {
+              to: "/offers",
+              icon: <BadgePercent size={20} />,
+              label: "العروض",
               roles: ["ADMIN"],
             },
           ]

@@ -9,7 +9,7 @@ import { useMutation } from "@tanstack/react-query";
 import toast from "react-hot-toast";
 import { queryClient } from "../../main";
 import type { AxiosError } from "axios";
-import type { APIError } from "../../api/api";
+import { baseURL, type APIError } from "../../api/api";
 import DeleteDialog from "../../components/DeleteDialog";
 import { useCompanies } from "../../hooks/useCompanies";
 import {
@@ -122,7 +122,22 @@ export default function Companies() {
                         {company.id}
                       </td>
                       <td className="p-3 border-b border-gray-200">
-                        {company.name}
+                        <div className="flex items-center gap-3">
+                          {company.logo ? (
+                            <img
+                              src={baseURL + company.logo}
+                              alt={company.name}
+                              className="w-10 h-10 rounded-full object-contain border border-gray-200"
+                            />
+                          ) : (
+                            <div className="w-10 h-10 rounded-full bg-gray-200 flex items-center justify-center text-xs font-bold text-gray-600">
+                              {company.name.charAt(0)}
+                            </div>
+                          )}
+                          <span className="font-medium text-gray-800">
+                            {company.name}
+                          </span>
+                        </div>
                       </td>
                       <td className="p-3 border-b border-gray-200">
                         {company.email}
