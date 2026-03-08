@@ -42,7 +42,7 @@ const Sidebar = ({ isOpen, onClose }: SidebarProps) => {
         </div>
 
         {/* Nav Links */}
-        <nav className="flex flex-col gap-3">
+        <nav className="flex overflow-y-auto  flex-col gap-3">
           {[
             {
               to: "/home",
