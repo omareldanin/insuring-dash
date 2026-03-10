@@ -95,6 +95,7 @@ export function LifeTable({ data }: Props) {
             <th className="p-2">إلى</th>
             <th className="p-2">النوع</th>
             <th className="p-2">النسبه</th>
+            <th className="p-2">عدد السنوات</th>
             <th className="p-2">إجراء</th>
           </tr>
         </thead>
@@ -150,6 +151,14 @@ export function LifeTable({ data }: Props) {
                       editRowId === r.id ? editData.persitage : r.persitage
                     }
                     onChange={(v) => setEditData({ ...editData, persitage: v })}
+                  />
+                </td>
+                <td className="p-3 border-b border-gray-200 h-[50px]">
+                  <EditableCell
+                    isEditing={editRowId === r.id}
+                    type="number"
+                    value={editRowId === r.id ? editData.years : r.years}
+                    onChange={(v) => setEditData({ ...editData, years: v })}
                   />
                 </td>
                 <td className="p-3 flex gap-2  border-b border-gray-200 h-[50px]">

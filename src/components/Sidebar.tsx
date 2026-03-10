@@ -93,6 +93,12 @@ const Sidebar = ({ isOpen, onClose }: SidebarProps) => {
               roles: ["ADMIN"],
             },
             {
+              to: "/cards",
+              icon: <FileText size={20} />,
+              label: "كروت الخصم",
+              roles: ["ADMIN"],
+            },
+            {
               to: "/offers",
               icon: <BadgePercent size={20} />,
               label: "العروض",

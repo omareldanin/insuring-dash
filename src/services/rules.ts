@@ -23,6 +23,7 @@ export interface Life {
   id: number;
   from: number;
   to: number;
+  years: number;
   gender: "male" | "female";
   insuranceType: InsuranceType;
   createdAt: Date;

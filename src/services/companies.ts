@@ -52,6 +52,23 @@ export const getCompanies = async (
   return res.data;
 };
 
+export const getStatiscs = async (): Promise<{
+  totalUsers: number;
+  totalPartners: number;
+  totalCompanies: number;
+  totalDocuments: number;
+  totalConfirmed: number;
+  totalNotConfirmed: number;
+  companiesChart: {
+    companyId: number;
+    companyName: string;
+    documents: number;
+  }[];
+}> => {
+  const res = await api.get("/insurance-companies/statistics");
+  return res.data;
+};
+
 export const deleteCompany = async (id: number | undefined) => {
   const respone = await api.delete("/insurance-companies/" + id);
   return respone.data;

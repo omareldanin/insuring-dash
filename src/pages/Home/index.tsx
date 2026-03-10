@@ -1,72 +1,53 @@
-import MonthlyOrdersChart from "../../components/ChartComponent";
 import ProductOrdersChart from "../../components/ProductOrdersChart";
 import { Wallet, Users, Store, Building } from "lucide-react";
-
-const mockData = {
-  statusCounts: {
-    STARTED: 42,
-    ACCEPTED: 120,
-  },
-
-  monthlySales: {
-    "2025-01": {
-      total: 32000,
-      shipping: 4500,
-    },
-    "2025-02": {
-      total: 41000,
-      shipping: 5200,
-    },
-    "2025-03": {
-      total: 38000,
-      shipping: 4900,
-    },
-    "2025-04": {
-      total: 47000,
-      shipping: 6100,
-    },
-    "2025-05": {
-      total: 53000,
-      shipping: 6800,
-    },
-  },
-};
+import { useStatistics } from "../../hooks/useCompanies";
+import Loading from "../../components/loading";
+import {
+  Bar,
+  BarChart,
+  ResponsiveContainer,
+  Tooltip,
+  XAxis,
+  YAxis,
+} from "recharts";
 
 const Home = () => {
-  // if (isLoading) {
-  //   return <Loading />;
-  // }
+  const { data, isLoading } = useStatistics();
 
   const stats = [
     {
       title: "المستخدمين",
-      value: 22,
+      value: data?.totalUsers,
       icon: <Users size={28} />,
       color: "bg-[#31e6b73b]",
       textColor: "text-[#403D39]",
     },
     {
       title: "شركاء النجاح",
-      value: 30,
+      value: data?.totalPartners,
       icon: <Store size={28} />,
       color: "bg-[#31e6b787]",
       textColor: "text-[#403D39]",
     },
     {
       title: "الشركات",
-      value: 40,
+      value: data?.totalCompanies,
       icon: <Building size={28} />,
       color: "bg-[#31e6b7d1]",
       textColor: "text-[#403D39]",
     },
     {
       title: "الوِثائق",
-      value: 150,
+      value: data?.totalDocuments,
       icon: <Wallet size={28} />,
       color: "bg-[#31e6b7ff]",
       textColor: "text-[#403D39]",
     },
   ];
+
+  if (isLoading) {
+    return <Loading />;
+  }
 
   return (
     <div className="pb-10">
@@ -101,18 +82,32 @@ const Home = () => {
           </div>
         ))}
       </div>
-      <div className="grid grid-cols-3 gap-4 mt-5">
+      <div className="grid grid-cols-1 sm:grid-cols-1 md:grid-cols-3 lg:grid-cols-3 gap-4 mt-5">
         <div className="bg-white shadow rounded-2xl p-4">
-          <ProductOrdersChart ordersByStatus={mockData.statusCounts} />
+          <ProductOrdersChart
+            ordersByStatus={{
+              STARTED: data?.totalNotConfirmed || 0,
+              ACCEPTED: data?.totalConfirmed || 0,
+            }}
+          />
         </div>
 
         <div className="bg-white shadow rounded-2xl p-4 col-span-2">
           <h2 className="font-bold text-lg mb-4 text-right text-[#121E2C]">
-            أداء المبيعات الشهريه
+            أداء المبيعات للشركات
           </h2>
 
           <div className="space-y-4">
-            <MonthlyOrdersChart monthlySales={mockData.monthlySales} />
+            <ResponsiveContainer width="100%" height={400}>
+              <BarChart
+                margin={{ top: 20, right: 30, left: 20, bottom: 5 }}
+                data={data?.companiesChart}>
+                <XAxis dataKey="companyName" fontSize={10} />
+                <YAxis />
+                <Tooltip />
+                <Bar dataKey="documents" fill="#8884d8" />
+              </BarChart>
+            </ResponsiveContainer>
           </div>
         </div>
       </div>

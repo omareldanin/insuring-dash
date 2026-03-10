@@ -22,6 +22,7 @@ export default function AddLifeRule({
 }: Props) {
   const [from, setFrom] = useState<number | undefined>();
   const [to, setTo] = useState<number | undefined>();
+  const [years, setYears] = useState<number | undefined>();
   const [gender, setGender] = useState<"male" | "female" | null>(null);
   const [persitage, setPersitage] = useState<number | undefined>();
 
@@ -50,8 +51,8 @@ export default function AddLifeRule({
     }
 
     // Logical validation
-    if (to <= from) {
-      toast.error("القيمة (إلي) يجب ان تكون اكبر من القيمه (من)", {
+    if (to < from) {
+      toast.error("القيمة (إلي) يجب ان تكون اكبر من او تساوي القيمه (من)", {
         duration: 5000,
       });
       return;
@@ -79,6 +80,7 @@ export default function AddLifeRule({
           insuranceType: "LIFE",
           planId,
           insuranceCompanyId,
+          years,
         },
       ],
     });
@@ -88,7 +90,7 @@ export default function AddLifeRule({
     <div className="bg-gray-50 border rounded-xl p-4 mb-6">
       <h3 className="font-semibold mb-4 text-gray-700">إضافة فلتر جديد</h3>
 
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
         <TextField
           label="من"
           type="number"
@@ -118,6 +120,13 @@ export default function AddLifeRule({
           }
           onChange={(_, v) => setGender(v?.value as "male" | "female" | null)}
           renderInput={(params) => <TextField {...params} label="النوع" />}
+        />
+
+        <TextField
+          label="عدد السنوات"
+          type="number"
+          value={years ?? ""}
+          onChange={(e) => setYears(Number(e.target.value))}
         />
 
         <TextField

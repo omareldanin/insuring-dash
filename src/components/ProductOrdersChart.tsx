@@ -34,8 +34,8 @@ export default function OrderStatusChart({
     }));
 
   return (
-    <div className="bg-white rounded-xl p-6">
-      <h2 className="text-lg font-bold mb-4 text-[#000]">حالة الطلبات</h2>
+    <div className="bg-white rounded-xl">
+      <h2 className="text-lg font-bold mb-4 text-[#000]">حالة الوثائق</h2>
       <ResponsiveContainer width="100%" height={350}>
         <PieChart>
           <Pie

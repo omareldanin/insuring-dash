@@ -27,6 +27,7 @@ import Documents from "./pages/Documents";
 import DocumentDetails from "./pages/Documents/DocumentDetails";
 import DocumentsRenews from "./pages/Renews/Index";
 import DocumentsReFunds from "./pages/Refunds";
+import Cards from "./pages/Cards/indexs";
 
 function App() {
   return (
@@ -192,6 +193,14 @@ function App() {
             element={
               <AppLayout>
                 <DocumentsRenews />
+              </AppLayout>
+            }
+          />
+          <Route
+            path="/cards"
+            element={
+              <AppLayout>
+                <Cards />
               </AppLayout>
             }
           />
