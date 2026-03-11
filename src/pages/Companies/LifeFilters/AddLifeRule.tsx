@@ -45,7 +45,7 @@ export default function AddLifeRule({
 
   const submit = () => {
     // Basic validation
-    if ((!from && from !== 0) || !to || !gender || !persitage) {
+    if ((!from && from !== 0) || !to || !gender || !persitage || !years) {
       toast.error("من فضلك أكمل جميع الحقول");
       return;
     }
@@ -58,7 +58,8 @@ export default function AddLifeRule({
       return;
     }
 
-    const filteredRules = rules?.filter((r) => r.gender === gender) || [];
+    const filteredRules =
+      rules?.filter((r) => r.gender === gender && r.years === years) || [];
 
     for (const r of filteredRules) {
       if (from >= r.from && from <= r.to) {
