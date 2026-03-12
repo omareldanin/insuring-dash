@@ -11,8 +11,11 @@ import { useCards } from "../../hooks/useCards";
 import { Autocomplete, TextField } from "@mui/material";
 import ConfirmDocumentModal from "./ConfirmDocumentModal";
 import { confirmCard } from "../../services/card";
+import { useNavigate } from "react-router-dom";
 
 export default function Cards() {
+  const navigation = useNavigate();
+
   const [id, setId] = useState<number | null>(null);
   const [filter, setFilters] = useState<{
     page?: number;
@@ -63,6 +66,11 @@ export default function Cards() {
             كروت الخصم - {data?.data.meta.total.toLocaleString()}
           </h1>
         </div>
+        <button
+          className="bg-gradient-to-r from-[#1c46a2] to-[#31e5b7] text-white px-4 py-2 rounded-lg hover:bg-gray-800"
+          onClick={() => navigation("/cards/features")}>
+          تعديل مميزات كارت الخصم
+        </button>
       </div>
 
       {/* Table */}

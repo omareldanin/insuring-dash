@@ -28,6 +28,7 @@ import DocumentDetails from "./pages/Documents/DocumentDetails";
 import DocumentsRenews from "./pages/Renews/Index";
 import DocumentsReFunds from "./pages/Refunds";
 import Cards from "./pages/Cards/indexs";
+import EditCardFeatures from "./pages/Cards/EditCardFeatures";
 
 function App() {
   return (
@@ -201,6 +202,14 @@ function App() {
             element={
               <AppLayout>
                 <Cards />
+              </AppLayout>
+            }
+          />
+          <Route
+            path="/cards/features"
+            element={
+              <AppLayout>
+                <EditCardFeatures />
               </AppLayout>
             }
           />
