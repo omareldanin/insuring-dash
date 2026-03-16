@@ -51,12 +51,12 @@ export default function AddLifeRule({
     }
 
     // Logical validation
-    if (to < from) {
-      toast.error("القيمة (إلي) يجب ان تكون اكبر من او تساوي القيمه (من)", {
-        duration: 5000,
-      });
-      return;
-    }
+    // if (to < from) {
+    //   toast.error("القيمة (إلي) يجب ان تكون اكبر من او تساوي القيمه (من)", {
+    //     duration: 5000,
+    //   });
+    //   return;
+    // }
 
     const filteredRules =
       rules?.filter((r) => r.gender === gender && r.years === years) || [];
