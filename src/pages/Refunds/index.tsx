@@ -11,10 +11,13 @@ import toast from "react-hot-toast";
 import { queryClient } from "../../main";
 import { DocumentStatusData, updateRefund } from "../../services/refunds";
 import ConfirmDocumentModal from "./ConfirmDocumentModal";
+import { useAuth } from "../../store/authStore";
 
 export default function DocumentsReFunds() {
   const navigation = useNavigate();
   const [id, setId] = useState<number | null>(null);
+  const { role } = useAuth();
+
   const [filter, setFilters] = useState<{
     page?: number;
     size?: number;
@@ -180,16 +183,18 @@ export default function DocumentsReFunds() {
                               className="px-3 py-1 text-xs font-medium text-blue-700 bg-blue-100 rounded-lg hover:bg-blue-200 transition">
                               عرض التفاصيل
                             </button>
-                            <button
-                              onClick={() => {
-                                setConfirmOpen(true);
-                                setId(document.id);
-                              }}
-                              className={`px-3 py-1 text-xs font-medium rounded-lg transition
+                            {role === "ADMIN" ? (
+                              <button
+                                onClick={() => {
+                                  setConfirmOpen(true);
+                                  setId(document.id);
+                                }}
+                                className={`px-3 py-1 text-xs font-medium rounded-lg transition
                                 ${"bg-green-100 text-green-700 hover:bg-green-200"}
                             `}>
-                              تغيير الحاله
-                            </button>
+                                تغيير الحاله
+                              </button>
+                            ) : null}
                           </div>
                         </td>
                       </tr>

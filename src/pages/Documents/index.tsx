@@ -17,9 +17,11 @@ import { useMutation } from "@tanstack/react-query";
 import ConfirmDocumentModal from "./ConfirmDocumentModal";
 import toast from "react-hot-toast";
 import { queryClient } from "../../main";
+import { useAuth } from "../../store/authStore";
 
 export default function Documents() {
   const navigation = useNavigate();
+  const { role } = useAuth();
   const [id, setId] = useState<number | null>(null);
   const [filter, setFilters] = useState<GetDocumentParams>({
     page: 1,
@@ -278,21 +280,23 @@ export default function Documents() {
                             </button>
 
                             {/* Confirm */}
-                            <button
-                              onClick={() => {
-                                setConfirmOpen(true);
-                                setId(document.id);
-                              }}
-                              disabled={document.confirmed}
-                              className={`px-3 py-1 text-xs font-medium rounded-lg transition
+                            {role === "ADMIN" ? (
+                              <button
+                                onClick={() => {
+                                  setConfirmOpen(true);
+                                  setId(document.id);
+                                }}
+                                disabled={document.confirmed}
+                                className={`px-3 py-1 text-xs font-medium rounded-lg transition
                                 ${
                                   document.confirmed
                                     ? "bg-gray-200 text-gray-500 cursor-not-allowed"
                                     : "bg-green-100 text-green-700 hover:bg-green-200"
                                 }
                             `}>
-                              تأكيد
-                            </button>
+                                تأكيد
+                              </button>
+                            ) : null}
                           </div>
                         </td>
                       </tr>

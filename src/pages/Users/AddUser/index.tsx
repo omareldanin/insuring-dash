@@ -8,6 +8,7 @@ import { queryClient } from "../../../main";
 import type { AxiosError } from "axios";
 import type { APIError } from "../../../api/api";
 import { createUser } from "../../../services/users";
+import { useAuth } from "../../../store/authStore";
 
 // ✅ Validation Schema (matches DTO + confirmPassword for frontend check)
 const schema = yup.object({
@@ -29,8 +30,8 @@ const schema = yup.object({
     .required("النوع مطلوب"),
 
   role: yup
-    .mixed<"ADMIN" | "PARTNER" | "CLIENT">()
-    .oneOf(["ADMIN", "PARTNER", "CLIENT"], "النوع غير صالح")
+    .mixed<"ADMIN" | "PARTNER" | "CLIENT" | "SALES">()
+    .oneOf(["ADMIN", "PARTNER", "CLIENT", "SALES"], "النوع غير صالح")
     .required("النوع مطلوب"),
 
   birthDate: yup.string().required("تاريخ الميلاد مطلوب"),
@@ -68,6 +69,7 @@ export default function AddUser() {
       avatar: undefined,
     },
   });
+  const { role } = useAuth();
 
   const { mutate: createNewUser, isPending } = useMutation({
     mutationFn: (data: FormData) => createUser(data),
@@ -184,9 +186,13 @@ export default function AddUser() {
           <select
             {...register("role")}
             className="w-full px-4 py-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-[#D9C8AA] bg-[#F9FAFB] text-gray-900">
-            <option value="ADMIN">مشرف</option>
+            {role === "ADMIN" ? <option value="ADMIN">مشرف</option> : null}
             <option value="CLIENT">عميل</option>
-            <option value="PARTNER">شريك نجاح</option>
+            {role === "ADMIN" ? (
+              <option value="PARTNER">شريك نجاح</option>
+            ) : (
+              <option value="SALES">بائع</option>
+            )}
           </select>
           <p className="error">{errors.role?.message as string}</p>
         </div>

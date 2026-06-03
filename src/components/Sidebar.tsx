@@ -10,12 +10,14 @@ import {
   FileText,
 } from "lucide-react";
 import logo from "../assets/logo-l.png";
+import { useAuth } from "../store/authStore";
 interface SidebarProps {
   isOpen: boolean;
   onClose: () => void;
 }
 
 const Sidebar = ({ isOpen, onClose }: SidebarProps) => {
+  const { role } = useAuth();
   return (
     <>
       {/* Overlay (sidebar) */}
@@ -48,13 +50,13 @@ const Sidebar = ({ isOpen, onClose }: SidebarProps) => {
               to: "/home",
               icon: <Home size={20} />,
               label: "الرئيسيه",
-              roles: ["ADMIN"],
+              roles: ["ADMIN", "PARTNER"],
             },
             {
               to: "/users",
               icon: <Users size={20} />,
               label: "المستخدمين",
-              roles: ["ADMIN"],
+              roles: ["ADMIN", "PARTNER"],
             },
             {
               to: "/companies",
@@ -78,19 +80,19 @@ const Sidebar = ({ isOpen, onClose }: SidebarProps) => {
               to: "/documents",
               icon: <FileText size={20} />,
               label: "الوثائق",
-              roles: ["ADMIN"],
+              roles: ["ADMIN", "PARTNER"],
             },
             {
               to: "/renews",
               icon: <FileText size={20} />,
               label: "طلبات التجديد",
-              roles: ["ADMIN"],
+              roles: ["ADMIN", "PARTNER"],
             },
             {
               to: "/refunds",
               icon: <FileText size={20} />,
               label: "التعويضات",
-              roles: ["ADMIN"],
+              roles: ["ADMIN", "PARTNER"],
             },
             {
               to: "/cards",
@@ -105,7 +107,7 @@ const Sidebar = ({ isOpen, onClose }: SidebarProps) => {
               roles: ["ADMIN"],
             },
           ]
-            // .filter((l) => l.roles.includes(role))
+            .filter((l) => l.roles.includes(role))
             .map((item) => (
               <NavLink
                 key={item.to}

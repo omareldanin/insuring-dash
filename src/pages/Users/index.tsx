@@ -13,15 +13,18 @@ import { baseURL, type APIError } from "../../api/api";
 import { useUsers } from "../../hooks/useUsers";
 import {
   deleteUser,
+  userPartnerOptions,
   usersOptions,
   type GetUsersParams,
 } from "../../services/users";
 import Loading from "../../components/loading";
 import userImage from "../../assets/user.png";
 import Select from "react-select";
+import { useAuth } from "../../store/authStore";
 
 export default function Users() {
   const navigation = useNavigate();
+  const { role } = useAuth();
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [id, setId] = useState<number | undefined>(undefined);
 
@@ -97,7 +100,7 @@ export default function Users() {
           <div>
             <Select
               value={usersOptions?.find((o) => o.value === filters.role)}
-              options={usersOptions}
+              options={role !== "ADMIN" ? userPartnerOptions : usersOptions}
               isClearable
               className="basic-single  text-gray-900 "
               placeholder="اختر نوع المستخدم..."
@@ -122,6 +125,7 @@ export default function Users() {
                   <th className="p-2">رقم الهاتف</th>
                   <th className="p-2">البريد الالكتروني</th>
                   <th className="p-2">السن</th>
+                  <th className="p-2">نوع المستخدم</th>
                   <th className="p-2">تاريخ الانشاء</th>
                   <th className="p-2">الإجراءات</th>
                 </tr>
@@ -164,8 +168,15 @@ export default function Users() {
                         {getAge(birthDate)} سنه
                       </td>
                       <td className="p-3 border-b border-gray-200">
+                        {
+                          usersOptions.find((o) => o.value === vendor.role)
+                            ?.label
+                        }
+                      </td>
+                      <td className="p-3 border-b border-gray-200">
                         {create.toLocaleString()}
                       </td>
+
                       <td className="p-3 border-b border-gray-200">
                         <div className="flex gap-2">
                           <button

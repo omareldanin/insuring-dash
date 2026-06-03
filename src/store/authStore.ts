@@ -17,7 +17,7 @@ interface IAuthStore {
   refreshToken: string;
 }
 
-interface TokenPayload {
+export interface TokenPayload {
   id: string;
   name: string;
   phone: string;

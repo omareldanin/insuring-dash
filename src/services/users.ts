@@ -65,6 +65,21 @@ export const usersOptions: OptionType[] = [
     value: "PARTNER",
     label: "شريك نجاح",
   },
+  {
+    value: "SALES",
+    label: "بائع",
+  },
+];
+
+export const userPartnerOptions: OptionType[] = [
+  {
+    value: "CLIENT",
+    label: "عميل",
+  },
+  {
+    value: "SALES",
+    label: "بائع",
+  },
 ];
 
 export const getUsers = async (
