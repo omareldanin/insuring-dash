@@ -18,6 +18,8 @@ import ConfirmDocumentModal from "./ConfirmDocumentModal";
 import toast from "react-hot-toast";
 import { queryClient } from "../../main";
 import { useAuth } from "../../store/authStore";
+import { useUsers } from "../../hooks/useUsers";
+import Select from "react-select";
 
 export default function Documents() {
   const navigation = useNavigate();
@@ -33,6 +35,8 @@ export default function Documents() {
   const { data, isLoading } = useDocuments(filter);
 
   const [confirmOpen, setConfirmOpen] = useState(false);
+
+  const { data: partners } = useUsers({ role: "PARTNER", page: 1, size: 1000 });
 
   const updateMutation = useMutation({
     mutationFn: ({ id, data }: { id: number; data: any }) =>
@@ -57,6 +61,12 @@ export default function Documents() {
       });
     }
   };
+
+  const partnerOptions =
+    partners?.results.map((p) => ({
+      value: String(p.id),
+      label: p.name,
+    })) ?? [];
 
   return (
     <div className="relative pb-10">
@@ -144,7 +154,6 @@ export default function Documents() {
               )}
             />
           </div>
-
           <div>
             <Autocomplete
               options={[
@@ -169,6 +178,27 @@ export default function Documents() {
               )}
             />
           </div>
+          {role === "ADMIN" && (
+            <div>
+              <Select
+                value={
+                  partnerOptions.find(
+                    (opt) => opt.value === filter.partnerId,
+                  ) || null
+                }
+                className="basic-single  text-gray-900 "
+                options={partnerOptions}
+                isClearable
+                placeholder="اختر المعرض..."
+                onChange={(opt) =>
+                  setFilters((f) => ({
+                    ...f,
+                    partnerId: opt?.value,
+                  }))
+                }
+              />
+            </div>
+          )}
         </div>
         {isLoading ? (
           <Loading />

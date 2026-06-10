@@ -4,7 +4,7 @@ type ConfirmDocumentForm = {
   documentNumber: string;
   startDate: string;
   endDate: string;
-  link?: string;
+  value?: string;
 };
 
 type Props = {
@@ -62,11 +62,12 @@ export default function ConfirmDocumentModal({
 
           {/* Payment Key */}
           <div>
-            <label className="text-sm text-gray-600">رابط الدفع</label>
+            <label className="text-sm text-gray-600">قيمة القسط</label>
             <input
-              {...register("link")}
+              {...register("value")}
               className="w-full mt-1 p-2 border rounded-lg"
-              placeholder="Payment reference"
+              type="number"
+              min={0}
             />
           </div>
 

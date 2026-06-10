@@ -35,6 +35,8 @@ export default function Users() {
 
   const { data, isLoading } = useUsers(filters);
 
+  const { data: partners } = useUsers({ role: "PARTNER", page: 1, size: 1000 });
+
   const { mutate: deleteUserById, isPending: deleteLoading } = useMutation({
     mutationFn: () => deleteUser(id),
     onSuccess: () => {
@@ -48,6 +50,7 @@ export default function Users() {
       toast.error(error.response?.data.message || "حدث خطأ ما");
     },
   });
+
   const getAge = (birthDate: Date): number => {
     const today = new Date();
 
@@ -63,6 +66,13 @@ export default function Users() {
 
     return age;
   };
+
+  const partnerOptions =
+    partners?.results.map((p) => ({
+      value: String(p.id),
+      label: p.name,
+    })) ?? [];
+
   return (
     <div className="relative pb-10">
       {/* Header */}
@@ -112,6 +122,27 @@ export default function Users() {
               }
             />
           </div>
+          {role === "ADMIN" && (
+            <div>
+              <Select
+                value={
+                  partnerOptions.find(
+                    (opt) => opt.value === filters.partnerId,
+                  ) || null
+                }
+                className="basic-single  text-gray-900 "
+                options={partnerOptions}
+                isClearable
+                placeholder="اختر المعرض..."
+                onChange={(opt) =>
+                  setFilters((f) => ({
+                    ...f,
+                    partnerId: opt?.value,
+                  }))
+                }
+              />
+            </div>
+          )}
         </div>
         {isLoading ? (
           <Loading />

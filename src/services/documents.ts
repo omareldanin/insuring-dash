@@ -129,6 +129,7 @@ export interface GetDocumentParams {
   userId?: number;
   confirmed?: boolean;
   insuranceType?: InsuranceType;
+  partnerId?: string;
 }
 
 export const getDocuments = (
@@ -159,7 +160,7 @@ export const confirmDocument = async (
     documentNumber: string;
     startDate: string;
     endDate: string;
-    link?: string;
+    value?: string;
   },
 ) => {
   const res = await api.patch(`/document/confirm/${id}`, data);

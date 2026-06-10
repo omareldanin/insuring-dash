@@ -198,7 +198,7 @@ export default function AddUser() {
         </div>
 
         <div>
-          <label className="block mb-1">تاريخ الميلاد *</label>
+          <label className="block mb-1 text-[#121E2C]">تاريخ الميلاد *</label>
           <input
             type="date"
             {...register("birthDate")}

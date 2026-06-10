@@ -46,6 +46,7 @@ export interface GetUsersParams {
   name?: string;
   phone?: string;
   vendorId?: string;
+  partnerId?: string;
 }
 
 export interface OptionType {
