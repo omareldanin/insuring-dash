@@ -38,6 +38,10 @@ export interface Company {
   logo?: string;
   email: string;
   ruleType: string;
+  paymentType?: string;
+  paymentLink?: string;
+  bankName?: string;
+  accountNumber?: string;
   companyType: "SOLIDARITY" | "COMMERCIAL";
   insuranceTypes: string[];
 }
