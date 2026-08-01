@@ -29,6 +29,7 @@ import DocumentsRenews from "./pages/Renews/Index";
 import DocumentsReFunds from "./pages/Refunds";
 import Cards from "./pages/Cards/indexs";
 import EditCardFeatures from "./pages/Cards/EditCardFeatures";
+import EditDocument from "./pages/Documents/EditDocument";
 
 function App() {
   return (
@@ -129,6 +130,14 @@ function App() {
             element={
               <AppLayout>
                 <CreateCompany />
+              </AppLayout>
+            }
+          />
+          <Route
+            path="/documents/edit/:id"
+            element={
+              <AppLayout>
+                <EditDocument />
               </AppLayout>
             }
           />

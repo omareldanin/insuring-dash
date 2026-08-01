@@ -171,3 +171,15 @@ export const confirmRenew = async (id: number) => {
   const res = await api.patch(`/document/renew/confirm/${id}`);
   return res.data;
 };
+
+export const deleteDocument = async (id: number) => {
+  const res = await api.delete(`/document/${id}`);
+  return res.data;
+};
+
+export const updateDocument = async (id: number, data: FormData) => {
+  const res = await api.patch(`/document/update/${id}`, data, {
+    headers: { "Content-Type": "multipart/form-data" },
+  });
+  return res.data;
+};

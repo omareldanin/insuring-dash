@@ -1,18 +1,25 @@
+import { HeartPulse } from "lucide-react";
+import { baseURL } from "../../../api/api";
 import type { Document } from "../../../services/documents";
 import UploadedFiles from "./UploadedFiles";
+import { SectionCard, InfoField } from "./ui";
 
 export default function LifeDetails({ life }: { life: Document["lifeInfo"] }) {
   return (
-    <div className="bg-white p-5 rounded-xl shadow space-y-4 text-gray-700">
-      <h2 className="text-lg font-semibold">تفاصيل تأمين الحياة</h2>
-
-      <div className="grid grid-cols-3 gap-4">
-        <p>السعر: {life.price}</p>
-        <p>السعر النهائي: {life.finalPrice}</p>
-        <p>النسبة: {life.persitage}%</p>
+    <SectionCard title="تفاصيل تأمين الحياة" icon={<HeartPulse size={18} />}>
+      <div className="grid grid-cols-3 gap-4 mb-5">
+        <InfoField label="السعر" value={life.price.toLocaleString()} />
+        <InfoField
+          label="السعر النهائي"
+          value={life.finalPrice.toLocaleString()}
+        />
+        <InfoField label="النسبة" value={`${life.persitage}%`} />
       </div>
 
-      <UploadedFiles files={[{ name: "بطاقة الهوية", url: life.idImage }]} />
-    </div>
+      <UploadedFiles
+        title="المستندات"
+        files={[{ name: "بطاقة الهوية", url: baseURL + life.idImage }]}
+      />
+    </SectionCard>
   );
 }

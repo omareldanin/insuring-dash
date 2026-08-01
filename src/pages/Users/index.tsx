@@ -21,12 +21,14 @@ import Loading from "../../components/loading";
 import userImage from "../../assets/user.png";
 import Select from "react-select";
 import { useAuth } from "../../store/authStore";
+import NotificationDialog from "../../components/NotificationDialog";
 
 export default function Users() {
   const navigation = useNavigate();
   const { role } = useAuth();
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [id, setId] = useState<number | undefined>(undefined);
+  const [isNotifyOpen, setIsNotifyOpen] = useState(false);
 
   const [filters, setFilters] = useState<GetUsersParams>({
     page: 1,
@@ -85,11 +87,20 @@ export default function Users() {
             إدارة جميع المستخدمين المتوفرة في الشركه
           </p>
         </div>
-        <button
-          className="bg-gradient-to-r from-[#1c46a2] to-[#31e5b7] text-white px-4 py-2 rounded-lg hover:bg-gray-800"
-          onClick={() => navigation("/users/add")}>
-          + إضافة مستخدم جديد
-        </button>
+        <div className="flex gap-2">
+          {role === "ADMIN" && (
+            <button
+              className="bg-white border border-[#1c46a2] text-[#1c46a2] px-4 py-2 rounded-lg hover:bg-gray-50"
+              onClick={() => setIsNotifyOpen(true)}>
+              إرسال إشعار
+            </button>
+          )}
+          <button
+            className="bg-gradient-to-r from-[#1c46a2] to-[#31e5b7] text-white px-4 py-2 rounded-lg hover:bg-gray-800"
+            onClick={() => navigation("/users/add")}>
+            + إضافة مستخدم جديد
+          </button>
+        </div>
       </div>
 
       {/* Table */}
@@ -256,6 +267,10 @@ export default function Users() {
         onConfirm={() => {
           deleteUserById();
         }}
+      />
+      <NotificationDialog
+        isOpen={isNotifyOpen}
+        onClose={() => setIsNotifyOpen(false)}
       />
     </div>
   );

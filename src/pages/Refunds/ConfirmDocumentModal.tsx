@@ -35,7 +35,7 @@ export default function ConfirmDocumentModal({
             <label className="text-sm text-gray-600">الحالة</label>
             <select
               {...register("status", { required: true })}
-              className="w-full mt-1 p-2 border rounded-lg bg-white">
+              className="w-full mt-1 p-2 border rounded-lg bg-white text-gray-600">
               <option value="">اختر الحالة</option>
               <option value="processing">تحت المعالجة</option>
               <option value="confirmed">تم الموافقة علي التعويض</option>

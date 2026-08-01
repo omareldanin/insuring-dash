@@ -38,7 +38,7 @@ export default function DocumentsReFunds() {
     mutationFn: ({ id, data }: { id: number; data: any }) =>
       updateRefund(id, data),
     onSuccess: () => {
-      toast.success("تم تجديد الوثيقه");
+      toast.success("تم تحديث الطلب");
       setConfirmOpen(false);
       queryClient.invalidateQueries({
         queryKey: ["refunds"],

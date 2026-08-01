@@ -5,6 +5,9 @@ import HealthDetails from "./HealthDetails";
 import LifeDetails from "./LifeDetails";
 import { useQuery } from "@tanstack/react-query";
 import Loading from "../../../components/loading";
+import { FileWarning, User, Building2, CreditCard } from "lucide-react";
+import { SectionCard, InfoField, StatusPill } from "./ui";
+import { baseURL } from "../../../api/api";
 
 export default function DocumentDetails() {
   const { id } = useParams();
@@ -17,115 +20,99 @@ export default function DocumentDetails() {
 
   if (isLoading) return <Loading />;
 
-  if (!document) return <div>Document not found</div>;
+  if (!document)
+    return (
+      <div className="flex flex-col items-center justify-center py-20 text-gray-400">
+        <FileWarning size={48} strokeWidth={1.5} />
+        <p className="mt-3">لم يتم العثور على الوثيقة</p>
+      </div>
+    );
+
+  const fmtDate = (d?: Date) =>
+    d ? new Date(d).toLocaleDateString("ar-EG") : "قيد الانتظار";
 
   return (
-    <div className="space-y-6">
-      {/* Header */}
-      <div className="grid grid-cols-2 gap-4 text-gray-700">
-        <div className="bg-white p-5 rounded-xl shadow  text-gray-700">
-          <div className="mb-3">
-            <h1 className="text-xl font-semibold text-gray-700 ">
-              تفاصيل الوثيقة #{document.id}
-            </h1>
-            <p className="text-gray-500 text-sm mt-2">{document.plan.name}</p>
-          </div>
-
-          <span
-            className={`px-3 py-1  text-sm rounded-full ${
-              document.confirmed
-                ? "bg-green-100 text-green-700"
-                : "bg-red-100 text-red-700"
-            }`}>
-            {document.confirmed ? "تم التأكيد" : "لم يتم التأكيد"}
-          </span>
-        </div>
-
-        <div className="bg-white p-5 rounded-xl shadow  text-gray-700">
-          <h2 className="text-lg font-semibold mb-4">معلومات الدفع</h2>
-
-          <div className="flex items-center gap-6">
-            {/* Payment Status */}
+    <div className="space-y-6 pb-10">
+      {/* Header: title + status + payment */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+        <SectionCard>
+          <div className="flex items-start justify-between">
             <div>
-              <p className="text-sm text-gray-500 mb-3">حالة الدفع</p>
-
-              <span
-                className={`px-3 py-1 text-sm font-medium rounded-full ${
-                  document.paid
-                    ? "text-green-700 bg-green-100"
-                    : "text-red-700 bg-red-100"
-                }`}>
-                {document.paid ? "💳 تم الدفع" : "❌ لم يتم الدفع"}
-              </span>
+              <h1 className="text-xl font-semibold text-gray-800 m-0">
+                تفاصيل الوثيقة #{document.id}
+              </h1>
+              <p className="text-gray-500 text-sm mt-2 m-0">
+                {document.plan.arName || document.plan.name}
+              </p>
             </div>
-
-            {/* Payment Key */}
-            <div>
-              <p className="text-sm text-gray-500 mb-3">رقم العملية</p>
-
-              {document.paidKey ? (
-                <span className="px-3 py-1 text-sm font-medium text-indigo-700 bg-indigo-100 rounded-lg">
-                  {document.paidKey}
-                </span>
-              ) : (
-                <span className="text-gray-400 text-sm">غير متوفر</span>
-              )}
-            </div>
+            <StatusPill
+              active={document.confirmed}
+              activeLabel="تم التأكيد"
+              inactiveLabel="لم يتم التأكيد"
+            />
           </div>
-        </div>
+        </SectionCard>
+
+        <SectionCard title="معلومات الدفع" icon={<CreditCard size={18} />}>
+          <div className="flex items-center gap-8">
+            <div>
+              <p className="text-xs text-gray-400 mb-2">حالة الدفع</p>
+              <StatusPill
+                active={document.paid}
+                activeLabel="تم الدفع"
+                inactiveLabel="لم يتم الدفع"
+              />
+            </div>
+            <InfoField label="رقم العملية" value={document.paidKey} />
+          </div>
+        </SectionCard>
       </div>
 
-      {/* Dates */}
-      <div className="bg-white p-4 rounded-xl shadow grid grid-cols-3 gap-4 text-gray-700">
-        <div>
-          <p className="text-gray-500 text-sm">رقم الوثيقة</p>
-          <p className="font-medium">
-            {document.documentNumber || "قيد الانتظار"}
-          </p>
+      {/* Document meta */}
+      <SectionCard>
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+          <InfoField label="رقم الوثيقة" value={document.documentNumber} />
+          <InfoField
+            label="تاريخ الإصدار"
+            value={fmtDate(document.startDate)}
+          />
+          <InfoField label="تاريخ الانتهاء" value={fmtDate(document.endDate)} />
         </div>
+      </SectionCard>
 
-        <div>
-          <p className="text-gray-500 text-sm">تاريخ الإصدار</p>
-          <p>
-            {document.startDate
-              ? new Date(document.startDate).toLocaleDateString("ar-EG")
-              : "قيد الانتظار"}
-          </p>
-        </div>
-
-        <div>
-          <p className="text-gray-500 text-sm">تاريخ الانتهاء</p>
-          <p>
-            {document.endDate
-              ? new Date(document.endDate).toLocaleDateString("ar-EG")
-              : "قيد الانتظار"}
-          </p>
-        </div>
-      </div>
       {/* Client + Company */}
-      <div className="grid grid-cols-2 gap-4 text-gray-700">
-        <div className="bg-white p-4 rounded-xl shadow">
-          <h2 className="font-semibold mb-2 text-gray-700">بيانات العميل</h2>
-          <p>الاسم: {document.user.name}</p>
-          <p>الهاتف: {document.user.phone}</p>
-        </div>
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+        <SectionCard title="بيانات العميل" icon={<User size={18} />}>
+          <div className="grid grid-cols-2 gap-4">
+            <InfoField label="الاسم" value={document.user.name} />
+            <InfoField label="الهاتف" value={document.user.phone} />
+          </div>
+        </SectionCard>
 
-        <div className="bg-white p-4 rounded-xl shadow text-gray-700">
-          <h2 className="font-semibold mb-2">شركة التأمين</h2>
-          <p>{document.company.name}</p>
-          <p>{document.company.email}</p>
-        </div>
+        <SectionCard title="شركة التأمين" icon={<Building2 size={18} />}>
+          <div className="flex items-center gap-4">
+            {document.company.logo && (
+              <img
+                src={baseURL + document.company.logo}
+                alt={document.company.name}
+                className="w-12 h-12 rounded-lg object-contain border border-gray-100"
+              />
+            )}
+            <div className="grid grid-cols-1 gap-1">
+              <InfoField label="الاسم" value={document.company.name} />
+              <InfoField label="البريد" value={document.company.email} />
+            </div>
+          </div>
+        </SectionCard>
       </div>
 
-      {/* TYPE SPECIFIC DETAILS */}
+      {/* Type-specific details */}
       {document.insuranceType === "CAR" && document.carInfo && (
         <CarDetails car={document.carInfo} />
       )}
-
       {document.insuranceType === "LIFE" && document.lifeInfo && (
         <LifeDetails life={document.lifeInfo} />
       )}
-
       {document.insuranceType === "HEALTH" && document.healthInfo && (
         <HealthDetails health={document.healthInfo} />
       )}
