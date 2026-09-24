@@ -152,7 +152,7 @@ export function RangeTable({ data }: Props) {
                   {r.make.name}
                 </td>
                 <td className="p-3 border-b border-gray-200 h-[50px]">
-                  {r.model.name}
+                  {r.model?.name || "--"}
                 </td>
                 <td className="p-3 border-b border-gray-200 h-[50px]">
                   {r.years.join("-")}
