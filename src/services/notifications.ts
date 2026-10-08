@@ -1,12 +1,29 @@
 import { api } from "../api/api";
 
 export interface SendBroadcastParams {
-  title: string;
+  title?: string;
   content: string;
-  role?: string; // optional: target only one role, omit for everyone
+  type?: "push" | "whatsapp";
+  role?: string;
+  userIds?: number[];
 }
 
-export const sendBroadcastNotification = async (data: SendBroadcastParams) => {
-  const res = await api.post("/notification/broadcast", data);
+export interface SendBroadcastResponse {
+  message: "success" | "partial_success" | "failed";
+  channel: "push" | "whatsapp";
+  sentTo: number;
+  skippedCount: number;
+  successCount: number;
+  failureCount: number;
+  saved: number;
+}
+
+export const sendBroadcastNotification = async (
+  data: SendBroadcastParams,
+): Promise<SendBroadcastResponse> => {
+  const res = await api.post<SendBroadcastResponse>(
+    "/notification/broadcast",
+    data,
+  );
   return res.data;
 };

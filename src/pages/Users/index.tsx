@@ -29,6 +29,10 @@ export default function Users() {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [id, setId] = useState<number | undefined>(undefined);
   const [isNotifyOpen, setIsNotifyOpen] = useState(false);
+  const [selectedUserIds, setSelectedUserIds] = useState<number[]>([]);
+  const [notificationUserIds, setNotificationUserIds] = useState<
+    number[] | undefined
+  >();
 
   const [filters, setFilters] = useState<GetUsersParams>({
     page: 1,
@@ -47,11 +51,47 @@ export default function Users() {
         queryKey: ["users"],
       });
       setIsDialogOpen(false);
+      setSelectedUserIds((previous) =>
+        previous.filter((userId) => userId !== id),
+      );
     },
     onError: (error: AxiosError<APIError>) => {
       toast.error(error.response?.data.message || "حدث خطأ ما");
     },
   });
+
+  const pageUserIds = data?.results.map((user) => user.id) ?? [];
+  const allPageSelected =
+    pageUserIds.length > 0 &&
+    pageUserIds.every((userId) => selectedUserIds.includes(userId));
+  const somePageSelected = pageUserIds.some((userId) =>
+    selectedUserIds.includes(userId),
+  );
+
+  const toggleUser = (userId: number) => {
+    setSelectedUserIds((previous) =>
+      previous.includes(userId)
+        ? previous.filter((value) => value !== userId)
+        : [...previous, userId],
+    );
+  };
+
+  const togglePage = () => {
+    setSelectedUserIds((previous) => {
+      const allSelected = pageUserIds.every((userId) =>
+        previous.includes(userId),
+      );
+      return allSelected
+        ? previous.filter((userId) => !pageUserIds.includes(userId))
+        : [...new Set([...previous, ...pageUserIds])];
+    });
+  };
+
+  // Keep selection across pages; clear it when the search filters change.
+  const updateFilters = (changes: Partial<GetUsersParams>) => {
+    setFilters((previous) => ({ ...previous, ...changes, page: 1 }));
+    setSelectedUserIds([]);
+  };
 
   const getAge = (birthDate: Date): number => {
     const today = new Date();
@@ -87,13 +127,28 @@ export default function Users() {
             إدارة جميع المستخدمين المتوفرة في الشركه
           </p>
         </div>
-        <div className="flex gap-2">
+        <div className="flex flex-wrap gap-2">
           {role === "ADMIN" && (
-            <button
-              className="bg-white border border-[#1c46a2] text-[#1c46a2] px-4 py-2 rounded-lg hover:bg-gray-50"
-              onClick={() => setIsNotifyOpen(true)}>
-              إرسال إشعار
-            </button>
+            <>
+              <button
+                className="bg-white border border-[#1c46a2] text-[#1c46a2] px-4 py-2 rounded-lg hover:bg-gray-50"
+                onClick={() => {
+                  setNotificationUserIds(undefined);
+                  setIsNotifyOpen(true);
+                }}>
+                إرسال للجميع / حسب الفئة
+              </button>
+              <button
+                disabled={selectedUserIds.length === 0}
+                className="bg-[#1c46a2] text-white px-4 py-2 rounded-lg disabled:opacity-50"
+                onClick={() => {
+                  if (selectedUserIds.length === 0) return;
+                  setNotificationUserIds([...selectedUserIds]);
+                  setIsNotifyOpen(true);
+                }}>
+                إرسال للمحدد ({selectedUserIds.length})
+              </button>
+            </>
           )}
           <button
             className="bg-gradient-to-r from-[#1c46a2] to-[#31e5b7] text-white px-4 py-2 rounded-lg hover:bg-gray-800"
@@ -113,9 +168,7 @@ export default function Users() {
               placeholder="بحث بالاسم .."
               className="w-full px-4 py-[6px] border border-[#E0E0E0] rounded-md focus:ring-2 focus:ring-[#fff] focus:outline-[none] bg-[#fff] text-gray-900 placeholder-gray-400"
               value={filters.name}
-              onChange={(e) =>
-                setFilters((pre) => ({ ...pre, name: e.target.value }))
-              }
+              onChange={(e) => updateFilters({ name: e.target.value })}
             />
           </div>
           <div>
@@ -126,10 +179,7 @@ export default function Users() {
               className="basic-single  text-gray-900 "
               placeholder="اختر نوع المستخدم..."
               onChange={(opt) =>
-                setFilters((f) => ({
-                  ...f,
-                  role: opt ? opt.value : undefined,
-                }))
+                updateFilters({ role: opt ? opt.value : undefined })
               }
             />
           </div>
@@ -145,16 +195,23 @@ export default function Users() {
                 options={partnerOptions}
                 isClearable
                 placeholder="اختر المعرض..."
-                onChange={(opt) =>
-                  setFilters((f) => ({
-                    ...f,
-                    partnerId: opt?.value,
-                  }))
-                }
+                onChange={(opt) => updateFilters({ partnerId: opt?.value })}
               />
             </div>
           )}
         </div>
+        {role === "ADMIN" && selectedUserIds.length > 0 && (
+          <div
+            className="flex items-center gap-3 px-3 pb-3 text-sm text-gray-700"
+            dir="rtl">
+            <span>تم تحديد {selectedUserIds.length} مستخدم عبر الصفحات</span>
+            <button
+              className="text-red-600"
+              onClick={() => setSelectedUserIds([])}>
+              إلغاء التحديد
+            </button>
+          </div>
+        )}
         {isLoading ? (
           <Loading />
         ) : (
@@ -162,6 +219,22 @@ export default function Users() {
             <table className="w-full text-sm text-right border-separate border-spacing-y-2">
               <thead>
                 <tr className="bg-gradient-to-r from-[#1c46a2] to-[#31e5b7] text-white shadow-sm">
+                  {role === "ADMIN" && (
+                    <th className="p-2">
+                      <input
+                        type="checkbox"
+                        aria-label="تحديد جميع مستخدمي الصفحة الحالية"
+                        checked={allPageSelected}
+                        disabled={pageUserIds.length === 0}
+                        ref={(element) => {
+                          if (element)
+                            element.indeterminate =
+                              somePageSelected && !allPageSelected;
+                        }}
+                        onChange={togglePage}
+                      />
+                    </th>
+                  )}
                   <th className="p-2">#</th>
                   <th className="p-2">الاسم</th>
                   <th className="p-2">رقم الهاتف</th>
@@ -181,6 +254,16 @@ export default function Users() {
                     <tr
                       key={vendor.id}
                       className="bg-white rounded-lg text-gray-700 border-b border-gray-200 hover:bg-gray-50">
+                      {role === "ADMIN" && (
+                        <td className="p-3 border-b border-gray-200">
+                          <input
+                            type="checkbox"
+                            aria-label={`تحديد ${vendor.name}`}
+                            checked={selectedUserIds.includes(vendor.id)}
+                            onChange={() => toggleUser(vendor.id)}
+                          />
+                        </td>
+                      )}
                       <td className="p-3 border-b border-gray-200">
                         {vendor.id}
                       </td>
@@ -268,10 +351,13 @@ export default function Users() {
           deleteUserById();
         }}
       />
-      <NotificationDialog
-        isOpen={isNotifyOpen}
-        onClose={() => setIsNotifyOpen(false)}
-      />
+      {isNotifyOpen && (
+        <NotificationDialog
+          isOpen={isNotifyOpen}
+          selectedUserIds={notificationUserIds}
+          onClose={() => setIsNotifyOpen(false)}
+        />
+      )}
     </div>
   );
 }
