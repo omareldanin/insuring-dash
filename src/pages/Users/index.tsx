@@ -355,6 +355,7 @@ export default function Users() {
         <NotificationDialog
           isOpen={isNotifyOpen}
           selectedUserIds={notificationUserIds}
+          initialRole={filters.role}
           onClose={() => setIsNotifyOpen(false)}
         />
       )}

@@ -17,18 +17,21 @@ interface Props {
   isOpen: boolean;
   onClose: () => void;
   selectedUserIds?: number[];
+  initialRole?: string;
 }
 
 export default function NotificationDialog({
   isOpen,
   onClose,
   selectedUserIds,
+  initialRole,
 }: Props) {
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
-  const [role, setRole] = useState<string | undefined>();
+  const [role, setRole] = useState<string | undefined>(initialRole);
   const [type, setType] = useState<"push" | "whatsapp">("push");
   const isSelectedMode = selectedUserIds !== undefined;
+  const isPartnerTemplate = type === "whatsapp" && role === "PARTNER";
 
   const { mutate: send, isPending } = useMutation({
     mutationFn: (payload: SendBroadcastParams) =>
@@ -67,7 +70,7 @@ export default function NotificationDialog({
     event.preventDefault();
     if (isPending) return;
 
-    if (!content.trim()) {
+    if (!isPartnerTemplate && !content.trim()) {
       toast.error("المحتوى مطلوب");
       return;
     }
@@ -80,13 +83,12 @@ export default function NotificationDialog({
 
     send({
       ...(title.trim() ? { title: title.trim() } : { title: "notification" }),
-      content: content.trim(),
+      // The partner template has no text parameters. Keep a string for
+      // compatibility with the existing service and notification DB field.
+      content: isPartnerTemplate ? "" : content.trim(),
       type,
-      ...(isSelectedMode
-        ? { userIds: [...new Set(selectedUserIds)] }
-        : role
-          ? { role }
-          : {}),
+      ...(role ? { role } : {}),
+      ...(isSelectedMode ? { userIds: [...new Set(selectedUserIds)] } : {}),
     });
   };
 
@@ -121,7 +123,9 @@ export default function NotificationDialog({
 
         <div className="mb-4 rounded-lg bg-blue-50 p-3 text-sm text-blue-900">
           {isSelectedMode
-            ? `سيتم الإرسال إلى المستخدمين المحددين فقط (${selectedUserIds.length})`
+            ? role
+              ? `سيتم الإرسال إلى فئة ${usersOptions.find((option) => option.value === role)?.label ?? role} فقط من بين ${selectedUserIds.length} مستخدم محدد`
+              : `سيتم الإرسال إلى المستخدمين المحددين فقط (${selectedUserIds.length})`
             : role
               ? `سيتم الإرسال إلى فئة: ${usersOptions.find((option) => option.value === role)?.label ?? role}`
               : "سيتم الإرسال إلى جميع المستخدمين المؤهلين للقناة المختارة"}
@@ -146,6 +150,27 @@ export default function NotificationDialog({
           </select>
         </div>
 
+        <div className="mb-6">
+          <label htmlFor="notification-role" className="text-sm text-gray-600">
+            الفئة المستهدفة (اختياري)
+          </label>
+          <Select
+            inputId="notification-role"
+            value={usersOptions.find((option) => option.value === role) ?? null}
+            options={usersOptions}
+            isClearable
+            isRtl
+            isDisabled={isPending}
+            placeholder={isSelectedMode ? "كل المستخدمين المحددين" : "الكل"}
+            className="mt-1 text-gray-900"
+            onChange={(option) => setRole(option?.value)}
+          />
+          {isSelectedMode && (
+            <p className="mt-2 text-xs text-gray-500">
+              اختيار فئة يقتصر الإرسال على المطابقين لها من المستخدمين المحددين.
+            </p>
+          )}
+        </div>
         {type !== "whatsapp" && (
           <div className="mb-4">
             <label
@@ -165,43 +190,26 @@ export default function NotificationDialog({
           </div>
         )}
 
-        <div className="mb-4">
-          <label
-            htmlFor="notification-content"
-            className="text-sm text-gray-600">
-            المحتوى
-          </label>
-          <textarea
-            id="notification-content"
-            value={content}
-            required
-            disabled={isPending}
-            onChange={(event) => setContent(event.target.value)}
-            placeholder="نص الإشعار"
-            rows={4}
-            className={`${fieldClass} resize-none`}
-          />
-        </div>
-
-        {!isSelectedMode && (
-          <div className="mb-6">
+        {isPartnerTemplate ? (
+          <div className="mb-4 rounded-lg bg-green-50 p-3 text-sm text-green-800">
+            سيتم إرسال قالب واتساب المخصص للشركاء. لا تحتاج إلى كتابة محتوى.
+          </div>
+        ) : (
+          <div className="mb-4">
             <label
-              htmlFor="notification-role"
+              htmlFor="notification-content"
               className="text-sm text-gray-600">
-              الفئة المستهدفة (اختياري)
+              المحتوى
             </label>
-            <Select
-              inputId="notification-role"
-              value={
-                usersOptions.find((option) => option.value === role) ?? null
-              }
-              options={usersOptions}
-              isClearable
-              isRtl
-              isDisabled={isPending}
-              placeholder="الكل"
-              className="mt-1 text-gray-900"
-              onChange={(option) => setRole(option?.value)}
+            <textarea
+              id="notification-content"
+              value={content}
+              required
+              disabled={isPending}
+              onChange={(event) => setContent(event.target.value)}
+              placeholder="نص الإشعار"
+              rows={4}
+              className={`${fieldClass} resize-none`}
             />
           </div>
         )}
